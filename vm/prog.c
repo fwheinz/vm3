@@ -326,6 +326,57 @@ OPCODE(discard) {
   POP;
 }
 
+OPCODE(loopbegin) {
+  val_t *vars = vstack_peek(exec->vars);
+  assert(vars->type == T_ARR);
+  val_t *loopstack = arr_get(vars->u.arr, 1);
+  assert(loopstack->type == T_ARR);
+  val_push(loopstack, v_num_new_int(exec->pc));
+}
+
+OPCODE(loopbody) {
+  MINARGS(1);
+  val_t *cond = POP;
+  assert(cond->type == T_NUM);
+  int v = cond->u.num;
+  if (!v)
+    op_loopexit(exec);
+}
+
+OPCODE(loopend) {
+  val_t *vars = vstack_peek(exec->vars);
+  assert(vars->type == T_ARR);
+  val_t *loopstack = arr_get(vars->u.arr, 1);
+  assert(loopstack->type == T_ARR);
+  val_t *pc = val_peek(loopstack);
+  assert(pc->type == T_NUM);
+  exec->pc = pc->u.num;
+}
+
+OPCODE(loopexit) {
+  int count = 1;
+  while (count > 0) {
+    exec->pc++;
+    if (exec->pc >= prog_nr_ops(exec->prog))
+      break;
+    if (prog_get_op(exec->prog, exec->pc) == MKOP(LOOPEND)) {
+      count--;
+    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(LOOPBEGIN)) {
+      count++;
+    }
+  }
+  val_t *vars = vstack_peek(exec->vars);
+  assert(vars->type == T_ARR);
+  val_t *loopstack = arr_get(vars->u.arr, 1);
+  assert(loopstack->type == T_ARR);
+  val_pop(loopstack);
+}
+
+OPCODE(looprestart) {
+  op_loopend(exec);
+}
+
+
 OPCODE(mkarray) {
   MINARGS(1);
   val_t *n = POP;
@@ -414,56 +465,6 @@ OPCODE(ret) {
   val_t *a = arr_get(v->u.arr, 0);
   assert(a->type == T_NUM);
   exec->pc = a->u.num;
-}
-
-OPCODE(loopbegin) {
-  val_t *vars = vstack_peek(exec->vars);
-  assert(vars->type == T_ARR);
-  val_t *loopstack = arr_get(vars->u.arr, 1);
-  assert(loopstack->type == T_ARR);
-  val_push(loopstack, v_num_new_int(exec->pc));
-}
-
-OPCODE(loopend) {
-  val_t *vars = vstack_peek(exec->vars);
-  assert(vars->type == T_ARR);
-  val_t *loopstack = arr_get(vars->u.arr, 1);
-  assert(loopstack->type == T_ARR);
-  val_t *pc = val_peek(loopstack);
-  assert(pc->type == T_NUM);
-  exec->pc = pc->u.num;
-}
-
-OPCODE(loopexit) {
-  int count = 1;
-  while (count > 0) {
-    exec->pc++;
-    if (exec->pc >= prog_nr_ops(exec->prog))
-      break;
-    if (prog_get_op(exec->prog, exec->pc) == MKOP(LOOPEND)) {
-      count--;
-    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(LOOPBEGIN)) {
-      count++;
-    }
-  }
-  val_t *vars = vstack_peek(exec->vars);
-  assert(vars->type == T_ARR);
-  val_t *loopstack = arr_get(vars->u.arr, 1);
-  assert(loopstack->type == T_ARR);
-  val_pop(loopstack);
-}
-
-OPCODE(loopbody) {
-  MINARGS(1);
-  val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  int v = cond->u.num;
-  if (!v)
-    op_loopexit(exec);
-}
-
-OPCODE(looprestart) {
-  op_loopend(exec);
 }
 
 OPCODE(condbegin) {
