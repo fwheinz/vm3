@@ -1,7 +1,5 @@
 %{
 #include "prolang.tab.h"
-
-char *strdup(const char *s);
 %}
 
 %option noinput nounput noyywrap yylineno
