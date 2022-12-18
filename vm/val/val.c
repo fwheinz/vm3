@@ -6,10 +6,13 @@
 #include "val.h"
 #include "str.h"
 #include "num.h"
+#include "real.h"
+#include "map.h"
+#include "arr.h"
 
 val_t *val_head;
 
-struct val_ops val_ops[T_MAX-1];
+struct val_ops val_ops[T_MAX];
 
 val_t val_undef = {
   .type = T_UNDEF,
@@ -19,7 +22,9 @@ val_t val_undef = {
 void val_init (void) {
   val_register_str();
   val_register_num();
+  val_register_real();
   val_register_arr();
+  val_register_map();
 }
 
 val_t *val_new (int type) {
@@ -104,11 +109,8 @@ int val_cmp (val_t *v1, val_t *v2) {
 
   if (v2->type == v1->type) {
     return val_ops[type].cmp(v1, v2);
-  } else {
-    val_t *tmp = val_conv(v1->type, v2);
-    if (tmp->type == v1->type)
-       return val_ops[type].cmp(v1, v2);
   }
+
   return -1;
 }
 
@@ -129,7 +131,14 @@ val_t *val_index_assign (val_t *val, val_t *i, val_t *v2) {
 }
 
 val_t *val_to_string (val_t *val) {
-  return val_ops[T_STR].conv(val);
+  if (val_ops[val->type].to_string)
+    return val_ops[val->type].to_string(val);
+  else
+    return v_str_new_cstr("UNDEF");
+}
+
+char *val_to_cstring (val_t *val) {
+  return val_to_string(val)->u.str->buf;
 }
 
 val_t *val_conv (int type, val_t *val) {
@@ -159,6 +168,12 @@ val_t *val_add (val_t *v1, val_t *v2) {
       ret = v_num_new_int(v1->u.num + v2->u.num);
       return ret;
     
+    case T_REAL:
+      if (v2->type != T_REAL)
+        return &val_undef;
+      ret = v_real_new_double(v1->u.real + v2->u.real);
+      return ret;
+    
     case T_ARR:
       ret = val_dup(v1);
       if (v2->type == T_ARR) {
@@ -185,6 +200,12 @@ val_t *val_sub (val_t *v1, val_t *v2) {
       ret = v_num_new_int(v1->u.num - v2->u.num);
       return ret;
     
+    case T_REAL:
+      if (v2->type != T_REAL)
+        return &val_undef;
+      ret = v_real_new_double(v1->u.real - v2->u.real);
+      return ret;
+    
     default:
       return &val_undef;
   }
@@ -193,7 +214,7 @@ val_t *val_sub (val_t *v1, val_t *v2) {
 }
 
 val_t *val_mul (val_t *v1, val_t *v2) {
-  val_t *tmp, *ret;
+  val_t *ret;
 
   switch (v1->type) {
     case T_STR:
@@ -206,10 +227,14 @@ val_t *val_mul (val_t *v1, val_t *v2) {
       }
       return ret;
 
+    case T_REAL:
+      if (v2->type != T_REAL)
+        return &val_undef;
+      return v_real_new_double(v1->u.real * v2->u.real);
+
     case T_NUM:
-      tmp = val_conv(T_NUM, v2);
-      if (tmp->type != T_NUM)
-        return tmp;
+      if (v2->type != T_NUM)
+        return &val_undef;
       ret = v_num_new_int(v1->u.num * v2->u.num);
       return ret;
     
@@ -231,29 +256,32 @@ val_t *val_mul (val_t *v1, val_t *v2) {
 }
 
 val_t *val_div (val_t *v1, val_t *v2) {
-  val_t *tmp, *ret;
+  val_t *ret;
 
   switch (v1->type) {
     case T_NUM:
-      tmp = val_conv(T_NUM, v2);
-      if (tmp->type != T_NUM)
-        return tmp;
+      if (v2->type != T_NUM)
+        return &val_undef;
       ret = v_num_new_int(v1->u.num / v2->u.num);
       return ret;
-    
+
+     case T_REAL:
+      if (v2->type != T_REAL)
+        return &val_undef;
+      return v_real_new_double(v1->u.real / v2->u.real);
+   
     default:
       return &val_undef;
   }
 }
 
 val_t *val_mod (val_t *v1, val_t *v2) {
-  val_t *tmp, *ret;
+  val_t *ret;
 
   switch (v1->type) {
     case T_NUM:
-      tmp = val_conv(T_NUM, v2);
-      if (tmp->type != T_NUM)
-        return tmp;
+      if (v2->type != T_NUM)
+        return &val_undef;
       ret = v_num_new_int(v1->u.num % v2->u.num);
       return ret;
     
@@ -261,6 +289,19 @@ val_t *val_mod (val_t *v1, val_t *v2) {
       return &val_undef;
   }
 }
+
+val_t *val_neg (val_t *v) {
+  switch (v->type) {
+    case T_NUM:
+      return v_num_new_int(-v->u.num);
+    case T_REAL:
+      return v_real_new_double(-v->u.real);
+    
+    default:
+      return &val_undef;
+  }
+}
+
 
 
 val_t *val_peek (val_t *v1) {
@@ -310,8 +351,9 @@ int val_mark (val_t *val) {
 
 int vals_count (void) {
   int c = 0;
-  for (val_t *p = val_head; p; p = p->next)
+  for (val_t *p = val_head; p; p = p->next) {
     c++;
+  }
 
   return c;
 }
@@ -340,6 +382,7 @@ int vals_mark (void *_exec) {
   }
   count += val_mark(exec->global_vars);
   count += val_mark(exec->prog->constants);
+  count += val_mark(exec->prog->functions);
   count += val_mark(exec->prog->ops);
 
   return count;
@@ -376,11 +419,11 @@ int vals_gc (void *exec) {
   if (count - last_count < GC_THRESHOLD)
     return 0;
   vals_unmark();
-  vmerror(E_DEBUG, exec, "[GC] Vals:    %d", count);
-  vmerror(E_DEBUG, exec, "[GC] Marked:  %d", vals_mark(exec));
-  vmerror(E_DEBUG, exec, "[GC] Sweeped: %d", vals_sweep());
+  vmerror(E_DEBUG3, exec, "[GC] Vals:    %d", count);
+  vmerror(E_DEBUG3, exec, "[GC] Marked:  %d", vals_mark(exec));
+  vmerror(E_DEBUG3, exec, "[GC] Sweeped: %d", vals_sweep());
   last_count = vals_count();
-  vmerror(E_DEBUG, exec, "[GC] Vals:    %d", last_count);
+  vmerror(E_DEBUG3, exec, "[GC] Vals:    %d", last_count);
   return 0;
 }
 

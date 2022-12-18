@@ -9,6 +9,7 @@ typedef struct val val_t;
 #include "str.h"
 #include "num.h"
 #include "arr.h"
+#include "map.h"
 
 #define GC_THRESHOLD 20
 
@@ -16,24 +17,27 @@ enum valtype {
   T_UNDEF = 0,
   T_STR,
   T_NUM,
+  T_REAL,
   T_ARR,
   T_MAP,
   T_MAX
 };
 
 typedef int num_t;
+typedef double real_t;
 typedef struct str str_t;
 typedef struct arr arr_t;
-//typedef struct map map_t;
+typedef struct map map_t;
 
 struct val {
   int type;
   int marked;
   union {
     num_t num;
+    real_t real;
     str_t *str;
     arr_t *arr;
-//    map_t *map;
+    map_t *map;
   } u;
   struct val *next;
 };
@@ -77,6 +81,7 @@ int    val_cmp (val_t *v1, val_t *v2);
 val_t *val_index (val_t *val, val_t *i);
 val_t *val_index_assign (val_t *val, val_t *i, val_t *v2);
 val_t *val_to_string (val_t *val);
+char  *val_to_cstring (val_t *val);
 val_t *val_conv (int type, val_t *val);
 void val_serialize (FILE *f, val_t *val);
 val_t *val_deserialize (FILE *f);
@@ -87,6 +92,7 @@ val_t *val_sub (val_t *v1, val_t *v2);
 val_t *val_mul (val_t *v1, val_t *v2);
 val_t *val_div (val_t *v1, val_t *v2);
 val_t *val_mod (val_t *v1, val_t *v2);
+val_t *val_neg (val_t *v);
 val_t *val_pop (val_t *v1);
 val_t *val_peek (val_t *v1);
 val_t *val_push (val_t *v1, val_t *v2);

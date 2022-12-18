@@ -1,19 +1,32 @@
 CC=gcc
-CFLAGS=-O2 -ggdb -Wall -I. -Werror
+CFLAGS=-ggdb -Wall -Ivm
+OBJS=
+TARGETS=prolang
 
-OBJ=prog.o stack.o vstack.o val/str.o val/num.o val/arr.o val/val.o vars.o
-LIBS=
+all: $(TARGETS)
 
-vm: libvm3.a main.o
-	$(CC) -o $@ main.o libvm3.a $(LIBS)
+%: %.lex.o %.tab.o $(OBJS) vm/libvm3.a
+	$(CC) -o $@ $^
 
-libvm3.a: $(OBJ) op_enum.h op_switch.h op_str.h
-	ar -rc libvm3.a $(OBJ)
+%.tab.o: %.tab.c %.tab.h
+	$(CC) -c $(CFLAGS) $< -o $@
 
-prog.o: op_switch.h op_enum.h op_str.h
+%.lex.o: %.lex.c %.tab.h
+	$(CC) -c $(CFLAGS) $< -o $@
 
-op_enum.h op_switch.h op_str.h: ops.txt
-	./mkincludes.sh
+%.tab.c %.tab.h: %.y
+	bison --defines -t $^
+
+%.lex.c: %.l
+	flex -o $@ $^
+
+vm/libvm3.a:
+	make -C vm
 
 clean:
-	rm -f $(OBJ) vm libvm3.a main.o
+	make -C vm clean
+	rm -f *.lex.* *.tab.* *.o $(TARGETS)
+
+.PHONY: vm/libvm3.a
+
+.PRECIOUS: prolang.tab.h

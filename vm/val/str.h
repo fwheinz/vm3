@@ -17,6 +17,7 @@ val_t *v_str_new_cstr (char *cstr);
 val_t *v_str_new_buf (char *buf, int len);
 
 str_t *str_add_buf (str_t *str, char *buf, int len);
+str_t *str_add_cstr (str_t *str, char *cstr);
 
 
 char *cstr (val_t *v);

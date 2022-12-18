@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -14,6 +15,7 @@ char *lvlstr[] = {
   "debug3",
 };
 
+
 int vmerror (int lvl, exec_t *ctx, char *format, ...) {
   char buf[1024];
   va_list args;
@@ -28,6 +30,20 @@ int vmerror (int lvl, exec_t *ctx, char *format, ...) {
   return 0;
 }
 
+val_t *getstack (exec_t *exec) {
+  val_t *ret = v_str_new_cstr("Stack: ");
+  for (int i = 0; i < exec->vstack->size; i++) {
+    str_add_cstr(ret->u.str, val_to_cstring(exec->vstack->vals[i]));
+    str_add_cstr(ret->u.str, " ");
+  }
+  str_add_cstr(ret->u.str, "(TOP)");
+
+  return ret;
+}
+
+void printstack (exec_t *exec) {
+  printf("%s\n", val_to_cstring(getstack(exec)));
+}
 
 prog_t *prog_new (void) {
   val_init();
@@ -35,6 +51,7 @@ prog_t *prog_new (void) {
   prog_t *prog = malloc(sizeof *prog);
   prog->ops = v_arr_create();
   prog->constants = v_arr_create();
+  prog->functions = v_map_create();
 
   return prog;
 }
@@ -76,7 +93,6 @@ int prog_set_num (prog_t *prog, int pc, int num) {
   return _prog_set_raw(prog, pc, num);
 }
 
-
 int prog_add_op (prog_t *prog, int op) {
   if (op >= MAX_OP) {
     return -1;
@@ -97,6 +113,13 @@ void prog_set_constant (prog_t *prog, int idx, val_t *c) {
 
 int prog_new_constant (prog_t *prog, val_t *c) {
   int idx = prog->constants->u.arr->size;
+  for (int i = 0; i < idx; i++) {
+    if (val_cmp(c, arr_get(prog->constants->u.arr, i)) == 0) {
+      printf("Found constant %s (%d)\n", val_to_cstring(c), i);
+      return i;
+    }
+  }
+  printf("Adding constant %s (%d)\n", val_to_cstring(c), idx);
   arr_set(prog->constants->u.arr, idx, c);
 
   return idx;
@@ -110,8 +133,8 @@ int prog_next_pc (prog_t *prog) {
   return prog_nr_ops(prog);
 }
 
-void prog_register_function (prog_t *prog, int idx, int pc) {
-  arr_set(prog->constants->u.arr, idx, v_num_new_int(pc));
+void prog_register_function (prog_t *prog, val_t *name, int pc) {
+  map_set(prog->functions->u.map, name, v_num_new_int(pc));
 }
 
 exec_t *exec_new (prog_t *prog) {
@@ -139,10 +162,6 @@ void exec_set_debuglvl (exec_t *exec, int lvl) {
   exec->debuglvl = lvl;
 }
 
-OPCODE(invalid) {
-  vmerror(E_ERR, exec, "Error: invalid opcode (0)");
-}
-
 OPCODE(add) {
   MINARGS(2);
   val_t *a1 = POP;
@@ -156,6 +175,14 @@ OPCODE(sub) {
   val_t *a1 = POP;
   val_t *a2 = POP;
   val_t *r = val_sub(a1, a2);
+  PUSH(r);
+}
+
+OPCODE(mul) {
+  MINARGS(2);
+  val_t *a1 = POP;
+  val_t *a2 = POP;
+  val_t *r = val_mul(a1, a2);
   PUSH(r);
 }
 
@@ -175,17 +202,23 @@ OPCODE(modulo) {
   PUSH(r);
 }
 
+OPCODE(negate) {
+  MINARGS(1);
+  val_t *v = POP;
+  val_t *r = val_neg(v);
+  PUSH(r);
+}
+
+OPCODE(dup) {
+  MINARGS(1);
+  val_t *v = POP;
+  PUSH(v);
+  PUSH(v);
+}
+
 OPCODE(discard) {
   MINARGS(1);
   POP;
-}
-
-OPCODE(mul) {
-  MINARGS(2);
-  val_t *a1 = POP;
-  val_t *a2 = POP;
-  val_t *r = val_mul(a1, a2);
-  PUSH(r);
 }
 
 OPCODE(print) {
@@ -240,10 +273,9 @@ OPCODE(call) {
   MINARGS(2);
 
   val_t *idx = POP;
-  assert(idx->type == T_NUM);
-  val_t *new_pc = arr_get(exec->prog->constants->u.arr, idx->u.num);
-  assert(new_pc->type == T_NUM);
-
+  assert(idx->type == T_STR);
+  vmerror(E_DEBUG, exec, "Looking up function %s", idx->u.str->buf);
+  val_t *new_pc = map_get(exec->prog->functions->u.map, idx);
   val_t *nrargs = POP;
   assert(nrargs->type == T_NUM);
   int nr = nrargs->u.num;
@@ -254,19 +286,53 @@ OPCODE(call) {
   for (int i = 0; i < nr; i++) {                 // Arguments
     arr_set(a->u.arr, i+2, POP);
   }
-  vstack_push(exec->vars, a);
 
-  exec->pc = new_pc->u.num - 1; // Because we increment later
+  if (new_pc->type == T_NUM) {
+    // Function found
+    vmerror(E_DEBUG, exec, "Found function at PC %d", new_pc->u.num);
+    vstack_push(exec->vars, a);
+    exec->pc = new_pc->u.num - 1; // Because we increment later
+  } else {
+    val_t *r = call_native(exec, idx->u.str->buf, a);
+    if (r) {
+      PUSH(r);
+    } else {
+      vmerror(E_DEBUG, exec, "Function not found!");
+      PUSH(&val_undef);
+    }
+  }
 }
 
 OPCODE(jump) {
+  MINARGS(1);
+  val_t *dest = POP;
+  assert(dest->type == T_NUM);
+  int new_pc = dest->u.num;
+  vmerror(E_DEBUG2, exec, "Jumping to %d", new_pc);
+  exec->pc = new_pc - 1; // Because we increment later
+}
+
+OPCODE(jumpt) {
   MINARGS(2);
   val_t *dest = POP;
   assert(dest->type == T_NUM);
   int new_pc = dest->u.num;
   val_t *cond = POP;
   assert(cond->type == T_NUM);
+  vmerror(E_DEBUG2, exec, "Jumping to %d on %d", new_pc, cond->u.num);
   if (cond->u.num != 0)
+    exec->pc = new_pc - 1; // Because we increment later
+}
+
+OPCODE(jumpf) {
+  MINARGS(2);
+  val_t *dest = POP;
+  assert(dest->type == T_NUM);
+  int new_pc = dest->u.num;
+  val_t *cond = POP;
+  assert(cond->type == T_NUM);
+  vmerror(E_DEBUG2, exec, "Jumping to %d on %d", new_pc, cond->u.num);
+  if (cond->u.num == 0)
     exec->pc = new_pc - 1; // Because we increment later
 }
 
@@ -329,6 +395,15 @@ OPCODE(loopexit) {
   val_t *loopstack = arr_get(vars->u.arr, 1);
   assert(loopstack->type == T_ARR);
   val_pop(loopstack);
+}
+
+OPCODE(loopbody) {
+  MINARGS(1);
+  val_t *cond = POP;
+  assert(cond->type == T_NUM);
+  int v = cond->u.num;
+  if (!v)
+    op_loopexit(exec);
 }
 
 OPCODE(looprestart) {
@@ -396,6 +471,7 @@ OPCODE(getvar) {
   val_t *nrvar = POP;
   assert(nrvar->type == T_NUM);
   val_t *var = arr_get(vars->u.arr, nrvar->u.num + 2);
+  vmerror(E_DEBUG2, exec, "getvar %d: %s", nrvar->u.num, val_to_cstring(var));
   PUSH(var);
 }
 
@@ -407,6 +483,7 @@ OPCODE(setvar) {
   assert(nrvar->type == T_NUM);
   val_t *val = POP;
   arr_set(vars->u.arr, nrvar->u.num + 2, val);
+  vmerror(E_DEBUG2, exec, "setvar %d: %s", nrvar->u.num, val_to_cstring(val));
 }
 
 OPCODE(getglobal) {
@@ -479,7 +556,40 @@ OPCODE(greaterequal) {
   PUSH(v_num_new_int(greaterequal));
 } 
 
+OPCODE(halt) {
+  vmerror(E_INFO, exec, "VM halted.");
+  exit(EXIT_SUCCESS);
+}
+
+OPCODE(createval) {
+  MINARGS(1);
+  val_t *type = POP;
+  assert(type->type == T_NUM);
+  PUSH(val_create(type->u.num));
+}
+
+NATIVE(getstring) {
+  char buf[1024];
+  printf("<< ");
+  char *s = fgets(buf, sizeof(buf), stdin);
+  if (s) {
+    buf[strlen(buf)-1] = 0;
+    return v_str_new_cstr(buf);
+  } else {
+    return &val_undef;
+  }
+}
+
+NATIVE(print) {
+  val_t *a = ARG(0);
+  val_t *s = val_to_string(a);
+  printf("> %s\n", cstr(s));
+  return &val_undef;
+}
+
 void prog_dump (prog_t *prog) {
+  printf("Constants: %s\n", val_to_cstring(prog->constants));
+  printf("Functions: %s\n", val_to_cstring(prog->functions));
   for (int i = 0; i < prog_nr_ops(prog); i++) {
     int op = prog_get_op(prog, i);
     if (!OP(op)) {
@@ -494,6 +604,7 @@ void prog_write (prog_t *p, char *filename) {
   FILE *f = fopen(filename, "w");
 
   val_serialize(f, p->constants);
+  val_serialize(f, p->functions);
   val_serialize(f, p->ops);
 }
 
@@ -505,11 +616,13 @@ prog_t *prog_read (char *filename) {
   }
   prog_t *p = prog_new();
   p->constants = val_deserialize(f);
+  p->functions = val_deserialize(f);
   p->ops = val_deserialize(f);
 
   return p;
 }
 
+#include "nativefuns.h"
 
 int exec_step (exec_t *exec) {
   if (exec->pc >= prog_nr_ops(exec->prog))
@@ -529,6 +642,7 @@ int exec_step (exec_t *exec) {
         break;
     }
   }
+  vmerror(E_DEBUG2, exec, "%s", val_to_cstring(getstack(exec)));
   exec->pc++;
   vals_gc(exec);
 
@@ -543,5 +657,4 @@ void exec_run (exec_t *exec) {
   } while (st > 0);
   vmerror(E_DEBUG, exec, "Stack size: %d\n", exec->vstack->size);
 }
-
 

@@ -1,0 +1,47 @@
+foo(10, 20);
+bar(10, 20);
+
+countdown(10);
+
+quux();
+
+xx = fac(10);
+
+print(xx);
+
+defun fac (a) {
+  if (a < 1) {
+    return 1;
+  } else {
+    return a * fac(a-1);
+  };
+};
+
+defun countdown (c) {
+  while ( 0 < c ) {
+    print(c);
+    c = c - 1;
+  };
+};
+
+defun foo (a, b) {
+  print(50-b-a);
+  print("Yoho");
+  if (1) {
+    print("True");
+  } else {
+    print("False");
+  };
+};
+
+defun bar (a, b) {
+  print(50+b+a);
+  a = 100;
+  print(50+b+a);
+  print("Yohaa");
+  if (0) {
+    print("Truex");
+  } else {
+    print("Falsex");
+  };
+};

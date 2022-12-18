@@ -22,6 +22,7 @@ extern char *lvlstr[];
 struct prog {
   val_t *ops;
   val_t *constants;
+  val_t *functions;
 };
 
 typedef struct prog prog_t;
@@ -46,6 +47,8 @@ typedef struct exec exec_t;
 #define POP vstack_pop(exec->vstack)
 #define PEEK vstack_peek(exec->vstack)
 #define PUSH(x) vstack_push(exec->vstack, (x))
+#define NATIVE(name) val_t *native_##name (exec_t *exec, val_t *args)
+#define ARG(x) arr_get(args->u.arr, (x)+2)
 
 prog_t *prog_new (void);
 void    prog_dump (prog_t *p);
@@ -56,8 +59,12 @@ int     prog_set_num (prog_t *prog, int pc, int num);
 void    prog_set_constant (prog_t *prog, int index, val_t *c);
 int     prog_new_constant (prog_t *prog, val_t *c);
 val_t  *prog_get_constant (prog_t *prog, int index);
-void    prog_register_function (prog_t *prog, int index, int pc);
+void    prog_register_function (prog_t *prog, val_t *name, int pc);
 int     prog_next_pc (prog_t *prog);
+
+void    printstack (exec_t *exec);
+
+val_t  *call_native (exec_t *, char *id, val_t *args);
 
 prog_t *prog_read (char *filename);
 void prog_write(prog_t *p, char *filename);

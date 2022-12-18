@@ -63,7 +63,7 @@ void var_leave_block (void) {
   }
 }
 
-void var_reset_locals (void) {
+void var_reset (void) {
   varalloc.nrlocals = 0;
 }
 

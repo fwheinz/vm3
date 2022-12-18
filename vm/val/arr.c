@@ -67,7 +67,7 @@ val_t *arr_set (arr_t *a, int i, val_t *v) {
 }
 
 val_t *arr_get (arr_t *a, int i) {
-  if (a->size < i + 1)
+  if (a->size <= i)
     return &val_undef;
   else
     return a->vals[i];
@@ -158,6 +158,25 @@ val_t *v_arr_deserialize (FILE *f) {
   return v;
 }
 
+val_t *v_arr_to_string (val_t *v) {
+  val_t *s = v_str_create();
+
+  str_add_cstr(s->u.str, "[");
+  for (int i = 0; i < v->u.arr->size; i++) {
+    val_t *vstr = val_to_string(arr_get(v->u.arr, i));
+    char buf[200];
+    snprintf(buf, sizeof(buf), "%d : ", i);
+    str_add_cstr(s->u.str, buf);
+    str_add_cstr(s->u.str, vstr->u.str->buf);
+    if (i != v->u.arr->size - 1)
+      str_add_cstr(s->u.str, ", ");
+  }
+  str_add_cstr(s->u.str, "]");
+
+  return s;
+}
+
+
 void val_register_arr (void) {
     val_ops[T_ARR] = (struct val_ops) {
     .create = v_arr_create,
@@ -167,7 +186,7 @@ void val_register_arr (void) {
     .cmp    = NULL,
     .index  = v_arr_index,
     .index_assign = v_arr_index_assign,
-    .to_string = NULL,
+    .to_string = v_arr_to_string,
     .conv   = NULL,
     .mark   = v_arr_mark,
     .serialize = v_arr_serialize,
