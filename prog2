@@ -3,11 +3,11 @@ guess = 0;
 while (guess != my) {
   guess = getint();
   if (guess < my) {
-    print(guess, " too small");
+    print("Sorry,", guess, "is too small");
   } else {
     if (my < guess) {
-      print(guess, " too large");
+      print("Sorry,", guess, "is too large");
     };
   };
 };
-print("Congratulations, ", my, "was my number!");
+print("Congratulations,", my, "was my number!");

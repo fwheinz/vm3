@@ -28,7 +28,7 @@ STR    \"[^\"]*\"
 {RETURN} { return _return; }
 {NUM}    { yylval.num =   atoi(yytext); return num; }
 {ID}     { yylval.id  = strdup(yytext); return id;  }
-{STR}    { yylval.str = strdup(yytext); return str; }
+{STR}    { yylval.str = strdup(yytext+1); yylval.str[strlen(yylval.str)-1] = 0; return str; }
 (\ |\n)
 .        { return yytext[0]; }
 
