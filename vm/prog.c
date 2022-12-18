@@ -326,6 +326,47 @@ OPCODE(discard) {
   POP;
 }
 
+OPCODE(condbegin) {
+  MINARGS(1);
+  val_t *cond = POP;
+  assert(cond->type == T_NUM);
+  int v = cond->u.num;
+  if (v)
+    return;
+
+  int count = 1;
+  while (count > 0) {
+    exec->pc++;
+    if (exec->pc >= prog_nr_ops(exec->prog))
+      break;
+    if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDBEGIN)) {
+      count++;
+    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDEND)) {
+      count--;
+    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDELSE) &&
+        count == 1) {
+      break;
+    }
+  }
+}
+
+OPCODE(condelse) {
+  int count = 1;
+  while (count > 0) {
+    exec->pc++;
+    if (exec->pc >= prog_nr_ops(exec->prog))
+      break;
+    if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDBEGIN)) {
+      count++;
+    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDEND)) {
+      count--;
+    }
+  }
+}
+
+OPCODE(condend) {
+}
+
 OPCODE(loopbegin) {
   val_t *vars = vstack_peek(exec->vars);
   assert(vars->type == T_ARR);
@@ -376,37 +417,7 @@ OPCODE(looprestart) {
   op_loopend(exec);
 }
 
-
-OPCODE(mkarray) {
-  MINARGS(1);
-  val_t *n = POP;
-  assert(n->type == T_NUM);
-  int nr = n->u.num;
-  MINARGS(nr);
-  val_t *a = v_arr_create();
-  for (int i = 0; i < nr; i++) {
-    arr_set(a->u.arr, i, POP);
-  }
-  PUSH(a);
-}
-
-OPCODE(indexas) {
-  MINARGS(3);
-  val_t *a = POP;
-  val_t *i = POP;
-  val_t *v = POP;
-
-  v_arr_index_assign(a, i, v);
-  PUSH(v);
-}
-
-OPCODE(index1) {
-  MINARGS(2);
-  val_t *a = POP;
-  val_t *i = POP;
-
-  val_t *v = v_arr_index(a, i);
-  PUSH(v);
+OPCODE(halt) {
 }
 
 OPCODE(call) {
@@ -443,23 +454,6 @@ OPCODE(call) {
   }
 }
 
-OPCODE(not) {
-  MINARGS(1);
-  val_t *v = POP;
-  PUSH(v_num_new_int(!v->u.num));
-}
-
-OPCODE(jumprel) {
-  MINARGS(2);
-  val_t *dest = POP;
-  assert(dest->type == T_NUM);
-  int new_pc = dest->u.num;
-  val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  if (cond->u.num != 0)
-    exec->pc += new_pc - 1; // Because we increment later
-}
-
 OPCODE(ret) {
   val_t *v = vstack_pop(exec->vars);
   val_t *a = arr_get(v->u.arr, 0);
@@ -467,58 +461,43 @@ OPCODE(ret) {
   exec->pc = a->u.num;
 }
 
-OPCODE(condbegin) {
+
+OPCODE(mkarray) {
   MINARGS(1);
-  val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  int v = cond->u.num;
-  if (v)
-    return;
-
-  int count = 1;
-  while (count > 0) {
-    exec->pc++;
-    if (exec->pc >= prog_nr_ops(exec->prog))
-      break;
-    if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDBEGIN)) {
-      count++;
-    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDEND)) {
-      count--;
-    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDELSE) &&
-        count == 1) {
-      break;
-    }
+  val_t *n = POP;
+  assert(n->type == T_NUM);
+  int nr = n->u.num;
+  MINARGS(nr);
+  val_t *a = v_arr_create();
+  for (int i = 0; i < nr; i++) {
+    arr_set(a->u.arr, i, POP);
   }
+  PUSH(a);
 }
 
-OPCODE(condelse) {
-  int count = 1;
-  while (count > 0) {
-    exec->pc++;
-    if (exec->pc >= prog_nr_ops(exec->prog))
-      break;
-    if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDBEGIN)) {
-      count++;
-    } else if (prog_get_op(exec->prog, exec->pc) == MKOP(CONDEND)) {
-      count--;
-    }
-  }
-}
+OPCODE(indexas) {
+  MINARGS(3);
+  val_t *a = POP;
+  val_t *i = POP;
+  val_t *v = POP;
 
-OPCODE(condend) {
-}
-
-OPCODE(noop) {
-  // Nothing to see here...
-  // really...
-}
-
-OPCODE(getint) {
-  char buf[100];
-  char *s = fgets(buf, sizeof(buf), stdin);
-  int nr = s ? atoi(s) : 0;
-  val_t *v = v_num_new_int(nr);
+  v_arr_index_assign(a, i, v);
   PUSH(v);
+}
+
+OPCODE(index1) {
+  MINARGS(2);
+  val_t *a = POP;
+  val_t *i = POP;
+
+  val_t *v = v_arr_index(a, i);
+  PUSH(v);
+}
+
+OPCODE(not) {
+  MINARGS(1);
+  val_t *v = POP;
+  PUSH(v_num_new_int(!v->u.num));
 }
 
 OPCODE(equal) {
@@ -575,14 +554,43 @@ OPCODE(greaterequal) {
   PUSH(v_num_new_int(greaterequal));
 } 
 
-OPCODE(halt) {
-}
-
 OPCODE(createval) {
   MINARGS(1);
   val_t *type = POP;
   assert(type->type == T_NUM);
   PUSH(val_create(type->u.num));
+}
+
+OPCODE(getint) {
+  char buf[100];
+  char *s = fgets(buf, sizeof(buf), stdin);
+  int nr = s ? atoi(s) : 0;
+  val_t *v = v_num_new_int(nr);
+  PUSH(v);
+}
+
+OPCODE(jumprel) {
+  MINARGS(2);
+  val_t *dest = POP;
+  assert(dest->type == T_NUM);
+  int new_pc = dest->u.num;
+  val_t *cond = POP;
+  assert(cond->type == T_NUM);
+  if (cond->u.num != 0)
+    exec->pc += new_pc - 1; // Because we increment later
+}
+
+OPCODE(noop) {
+  // Nothing to see here...
+  // really...
+}
+
+NATIVE(getint) {
+  char buf[100];
+  printf("< ");
+  char *s = fgets(buf, sizeof(buf), stdin);
+  val_t *v = s ? v_num_new_int(atoi(s)) : &val_undef;
+  return v;
 }
 
 NATIVE(getstring) {

@@ -59,6 +59,15 @@
   case DISCARD:
     op_discard(exec);
     break;
+  case CONDBEGIN:
+    op_condbegin(exec);
+    break;
+  case CONDELSE:
+    op_condelse(exec);
+    break;
+  case CONDEND:
+    op_condend(exec);
+    break;
   case LOOPBEGIN:
     op_loopbegin(exec);
     break;
@@ -74,6 +83,15 @@
   case LOOPRESTART:
     op_looprestart(exec);
     break;
+  case HALT:
+    op_halt(exec);
+    break;
+  case CALL:
+    op_call(exec);
+    break;
+  case RET:
+    op_ret(exec);
+    break;
   case MKARRAY:
     op_mkarray(exec);
     break;
@@ -83,32 +101,8 @@
   case INDEX1:
     op_index1(exec);
     break;
-  case CALL:
-    op_call(exec);
-    break;
   case NOT:
     op_not(exec);
-    break;
-  case JUMPREL:
-    op_jumprel(exec);
-    break;
-  case RET:
-    op_ret(exec);
-    break;
-  case CONDBEGIN:
-    op_condbegin(exec);
-    break;
-  case CONDELSE:
-    op_condelse(exec);
-    break;
-  case CONDEND:
-    op_condend(exec);
-    break;
-  case NOOP:
-    op_noop(exec);
-    break;
-  case GETINT:
-    op_getint(exec);
     break;
   case EQUAL:
     op_equal(exec);
@@ -128,9 +122,15 @@
   case GREATEREQUAL:
     op_greaterequal(exec);
     break;
-  case HALT:
-    op_halt(exec);
-    break;
   case CREATEVAL:
     op_createval(exec);
+    break;
+  case GETINT:
+    op_getint(exec);
+    break;
+  case JUMPREL:
+    op_jumprel(exec);
+    break;
+  case NOOP:
+    op_noop(exec);
     break;

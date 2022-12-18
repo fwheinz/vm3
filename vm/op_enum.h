@@ -19,31 +19,31 @@ void op_jumpt(exec_t *);
 void op_jumpf(exec_t *);
 void op_dup(exec_t *);
 void op_discard(exec_t *);
+void op_condbegin(exec_t *);
+void op_condelse(exec_t *);
+void op_condend(exec_t *);
 void op_loopbegin(exec_t *);
 void op_loopbody(exec_t *);
 void op_loopend(exec_t *);
 void op_loopexit(exec_t *);
 void op_looprestart(exec_t *);
+void op_halt(exec_t *);
+void op_call(exec_t *);
+void op_ret(exec_t *);
 void op_mkarray(exec_t *);
 void op_indexas(exec_t *);
 void op_index1(exec_t *);
-void op_call(exec_t *);
 void op_not(exec_t *);
-void op_jumprel(exec_t *);
-void op_ret(exec_t *);
-void op_condbegin(exec_t *);
-void op_condelse(exec_t *);
-void op_condend(exec_t *);
-void op_noop(exec_t *);
-void op_getint(exec_t *);
 void op_equal(exec_t *);
 void op_notequal(exec_t *);
 void op_less(exec_t *);
 void op_lessequal(exec_t *);
 void op_greater(exec_t *);
 void op_greaterequal(exec_t *);
-void op_halt(exec_t *);
 void op_createval(exec_t *);
+void op_getint(exec_t *);
+void op_jumprel(exec_t *);
+void op_noop(exec_t *);
 enum opcodes {
   INVALID,
   FOOBAR,
@@ -66,30 +66,30 @@ enum opcodes {
   JUMPF,
   DUP,
   DISCARD,
+  CONDBEGIN,
+  CONDELSE,
+  CONDEND,
   LOOPBEGIN,
   LOOPBODY,
   LOOPEND,
   LOOPEXIT,
   LOOPRESTART,
+  HALT,
+  CALL,
+  RET,
   MKARRAY,
   INDEXAS,
   INDEX1,
-  CALL,
   NOT,
-  JUMPREL,
-  RET,
-  CONDBEGIN,
-  CONDELSE,
-  CONDEND,
-  NOOP,
-  GETINT,
   EQUAL,
   NOTEQUAL,
   LESS,
   LESSEQUAL,
   GREATER,
   GREATEREQUAL,
-  HALT,
   CREATEVAL,
+  GETINT,
+  JUMPREL,
+  NOOP,
   MAX_OP
 };
