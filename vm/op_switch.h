@@ -26,6 +26,33 @@
   case DEC:
     op_dec(exec);
     break;
+  case EQUAL:
+    op_equal(exec);
+    break;
+  case NOTEQUAL:
+    op_notequal(exec);
+    break;
+  case LESS:
+    op_less(exec);
+    break;
+  case LESSEQUAL:
+    op_lessequal(exec);
+    break;
+  case GREATER:
+    op_greater(exec);
+    break;
+  case GREATEREQUAL:
+    op_greaterequal(exec);
+    break;
+  case AND:
+    op_and(exec);
+    break;
+  case OR:
+    op_or(exec);
+    break;
+  case NOT:
+    op_not(exec);
+    break;
   case PRINT:
     op_print(exec);
     break;
@@ -91,33 +118,6 @@
     break;
   case RET:
     op_ret(exec);
-    break;
-  case EQUAL:
-    op_equal(exec);
-    break;
-  case NOTEQUAL:
-    op_notequal(exec);
-    break;
-  case LESS:
-    op_less(exec);
-    break;
-  case LESSEQUAL:
-    op_lessequal(exec);
-    break;
-  case GREATER:
-    op_greater(exec);
-    break;
-  case GREATEREQUAL:
-    op_greaterequal(exec);
-    break;
-  case AND:
-    op_and(exec);
-    break;
-  case OR:
-    op_or(exec);
-    break;
-  case NOT:
-    op_not(exec);
     break;
   case CREATEVAL:
     op_createval(exec);

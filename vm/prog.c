@@ -224,6 +224,84 @@ OPCODE(dec) {
     a->u.num--;
 }
 
+OPCODE(equal) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+  
+  int eq = val_cmp(v1, v2) == 0;
+  PUSH(v_num_new_int(eq));
+} 
+
+OPCODE(notequal) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+  
+  int neq = val_cmp(v1, v2) != 0;
+  PUSH(v_num_new_int(neq));
+} 
+
+OPCODE(less) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+  
+  int less = val_cmp(v1, v2) < 0;
+  PUSH(v_num_new_int(less));
+} 
+
+OPCODE(lessequal) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+  
+  int lesseq = val_cmp(v1, v2) <= 0;
+  PUSH(v_num_new_int(lesseq));
+} 
+
+OPCODE(greater) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+  
+  int greater = val_cmp(v1, v2) > 0;
+  PUSH(v_num_new_int(greater));
+} 
+
+OPCODE(greaterequal) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+  
+  int greaterequal = val_cmp(v1, v2) >= 0;
+  PUSH(v_num_new_int(greaterequal));
+} 
+
+OPCODE(and) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+
+  int val = val_to_bool(v1) && val_to_bool(v2);
+  PUSH(v_num_new_int(val));
+} 
+
+OPCODE(or) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+
+  int val = val_to_bool(v1) || val_to_bool(v2);
+  PUSH(v_num_new_int(val));
+} 
+
+OPCODE(not) {
+  MINARGS(1);
+  val_t *v = POP;
+  PUSH(v_num_new_int(!v->u.num));
+}
+
 OPCODE(print) {
   MINARGS(1);
   val_t *a = POP;
@@ -461,84 +539,6 @@ OPCODE(ret) {
   exec->pc = a->u.num;
 }
 
-OPCODE(equal) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-  
-  int eq = val_cmp(v1, v2) == 0;
-  PUSH(v_num_new_int(eq));
-} 
-
-OPCODE(notequal) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-  
-  int neq = val_cmp(v1, v2) != 0;
-  PUSH(v_num_new_int(neq));
-} 
-
-OPCODE(less) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-  
-  int less = val_cmp(v1, v2) < 0;
-  PUSH(v_num_new_int(less));
-} 
-
-OPCODE(lessequal) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-  
-  int lesseq = val_cmp(v1, v2) <= 0;
-  PUSH(v_num_new_int(lesseq));
-} 
-
-OPCODE(greater) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-  
-  int greater = val_cmp(v1, v2) > 0;
-  PUSH(v_num_new_int(greater));
-} 
-
-OPCODE(greaterequal) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-  
-  int greaterequal = val_cmp(v1, v2) >= 0;
-  PUSH(v_num_new_int(greaterequal));
-} 
-
-OPCODE(and) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-
-  int val = val_to_bool(v1) && val_to_bool(v2);
-  PUSH(v_num_new_int(val));
-} 
-
-OPCODE(or) {
-  MINARGS(2);
-  val_t *v1 = POP;
-  val_t *v2 = POP;
-
-  int val = val_to_bool(v1) || val_to_bool(v2);
-  PUSH(v_num_new_int(val));
-} 
-
-OPCODE(not) {
-  MINARGS(1);
-  val_t *v = POP;
-  PUSH(v_num_new_int(!v->u.num));
-}
-
 OPCODE(createval) {
   MINARGS(1);
   val_t *type = POP;
@@ -575,7 +575,6 @@ OPCODE(indexas) {
   val_t *v = POP;
 
   v_arr_index_assign(a, i, v);
-  PUSH(v);
 }
 
 OPCODE(getint) {
@@ -623,9 +622,16 @@ NATIVE(getstring) {
 }
 
 NATIVE(print) {
-  val_t *a = ARG(0);
-  val_t *s = val_to_string(a);
-  printf("> %s\n", cstr(s));
+  int i = 0;
+  printf(">");
+  while (1) {
+    val_t *a = ARG(i++);
+    if (a->type == T_UNDEF)
+      break;
+    val_t *s = val_to_string(a);
+    printf(" %s", cstr(s));
+  }
+  printf("\n");
   fflush(stdout);
   return &val_undef;
 }

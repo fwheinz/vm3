@@ -14,7 +14,7 @@ struct var *_var_lookup (char *id, struct var *list, int len) {
   return NULL;
 }
 
-struct var *_var_add (char *id, struct var **list, int *len) {
+struct var *_var_add (char *id, struct var **list, int *len, int global) {
   if (id && _var_lookup(id, *list, *len))
     return NULL;
 
@@ -27,25 +27,34 @@ struct var *_var_add (char *id, struct var **list, int *len) {
     (*list)[*len].nr = VAR_BLOCKBORDER;
   }
   (*list)[*len].type = -1;
+  (*list)[*len].global = global;
   (*len)++;
 
   return &(*list)[*len-1];
 }
 
 struct var *var_add_global (char *id) {
-  return _var_add(id, &varalloc.globals, &varalloc.nrglobals);
+  return _var_add(id, &varalloc.globals, &varalloc.nrglobals, 1);
 }
 
 struct var *var_add_local (char *id) {
-  return _var_add(id, &varalloc.locals, &varalloc.nrlocals);
+  return _var_add(id, &varalloc.locals, &varalloc.nrlocals, 0);
 }
 
 struct var *var_get_or_addlocal (char *id) {
-  struct var *ret = _var_lookup(id, varalloc.globals, varalloc.nrglobals);
+  struct var *ret = _var_lookup(id, varalloc.locals, varalloc.nrlocals);
   if (!ret)
-    ret = _var_lookup(id, varalloc.locals, varalloc.nrlocals);
+    ret = _var_lookup(id, varalloc.globals, varalloc.nrglobals);
   if (!ret)
-    ret = _var_add(id, &varalloc.locals, &varalloc.nrlocals);
+    ret = _var_add(id, &varalloc.locals, &varalloc.nrlocals, 0);
+
+  return ret;
+}
+
+struct var *var_get (char *id) {
+  struct var *ret = _var_lookup(id, varalloc.locals, varalloc.nrlocals);
+  if (!ret)
+    ret = _var_lookup(id, varalloc.globals, varalloc.nrglobals);
 
   return ret;
 }
@@ -65,6 +74,11 @@ void var_leave_block (void) {
 
 void var_reset (void) {
   varalloc.nrlocals = 0;
+}
+
+void var_reset_all (void) {
+  varalloc.nrlocals = 0;
+  varalloc.nrglobals = 0;
 }
 
 

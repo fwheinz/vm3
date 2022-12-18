@@ -92,10 +92,12 @@ struct varalloc {
 
 struct var *var_add_global (char *id);
 struct var *var_add_local(char *id);
+struct var *var_get(char *id);
 struct var *var_get_or_addlocal(char *id);
 void var_enter_block (void);
 void var_leave_block (void);
 void var_reset (void);
+void var_reset_all (void);
 
 int vmerror (int lvl, exec_t *ctx, char *format, ...);
 

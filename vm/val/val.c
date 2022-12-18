@@ -32,7 +32,7 @@ val_t *val_new (int type) {
   if (type == T_UNDEF)
     v = &val_undef;
   else {
-    v = malloc(sizeof *v);
+    v = calloc(1, sizeof *v);
     v->type = type;
     v->marked = 0;
     v->next = val_head;
