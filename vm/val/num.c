@@ -55,6 +55,10 @@ val_t *v_num_conv (val_t *v) {
  }
 }
 
+int v_num_to_bool (val_t *v) {
+  return v->u.num != 0;
+}
+
 void v_num_serialize (FILE *f, val_t *v) {
   write_int(f, v->u.num);
 }
@@ -72,6 +76,7 @@ void val_register_num (void) {
     .len    = NULL,
     .dup    = v_num_dup,
     .cmp    = v_num_cmp,
+    .to_bool= v_num_to_bool,
     .index  = NULL,
     .index_assign = NULL,
     .to_string = v_num_to_string,

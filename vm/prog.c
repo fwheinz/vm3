@@ -461,45 +461,6 @@ OPCODE(ret) {
   exec->pc = a->u.num;
 }
 
-
-OPCODE(mkarray) {
-  MINARGS(1);
-  val_t *n = POP;
-  assert(n->type == T_NUM);
-  int nr = n->u.num;
-  MINARGS(nr);
-  val_t *a = v_arr_create();
-  for (int i = 0; i < nr; i++) {
-    arr_set(a->u.arr, i, POP);
-  }
-  PUSH(a);
-}
-
-OPCODE(indexas) {
-  MINARGS(3);
-  val_t *a = POP;
-  val_t *i = POP;
-  val_t *v = POP;
-
-  v_arr_index_assign(a, i, v);
-  PUSH(v);
-}
-
-OPCODE(index1) {
-  MINARGS(2);
-  val_t *a = POP;
-  val_t *i = POP;
-
-  val_t *v = v_arr_index(a, i);
-  PUSH(v);
-}
-
-OPCODE(not) {
-  MINARGS(1);
-  val_t *v = POP;
-  PUSH(v_num_new_int(!v->u.num));
-}
-
 OPCODE(equal) {
   MINARGS(2);
   val_t *v1 = POP;
@@ -554,11 +515,67 @@ OPCODE(greaterequal) {
   PUSH(v_num_new_int(greaterequal));
 } 
 
+OPCODE(and) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+
+  int val = val_to_bool(v1) && val_to_bool(v2);
+  PUSH(v_num_new_int(val));
+} 
+
+OPCODE(or) {
+  MINARGS(2);
+  val_t *v1 = POP;
+  val_t *v2 = POP;
+
+  int val = val_to_bool(v1) || val_to_bool(v2);
+  PUSH(v_num_new_int(val));
+} 
+
+OPCODE(not) {
+  MINARGS(1);
+  val_t *v = POP;
+  PUSH(v_num_new_int(!v->u.num));
+}
+
 OPCODE(createval) {
   MINARGS(1);
   val_t *type = POP;
   assert(type->type == T_NUM);
   PUSH(val_create(type->u.num));
+}
+
+OPCODE(mkarray) {
+  MINARGS(1);
+  val_t *n = POP;
+  assert(n->type == T_NUM);
+  int nr = n->u.num;
+  MINARGS(nr);
+  val_t *a = v_arr_create();
+  for (int i = 0; i < nr; i++) {
+    arr_set(a->u.arr, i, POP);
+  }
+  PUSH(a);
+}
+
+OPCODE(index1) {
+  MINARGS(2);
+  val_t *a = POP;
+  val_t *i = POP;
+
+  val_t *v = v_arr_index(a, i);
+  PUSH(v);
+}
+
+OPCODE(indexas) {
+  MINARGS(3);
+  val_t *a = POP;
+  val_t *i = POP;
+  val_t *v = POP;
+
+  v_arr_index_assign(a, i, v);
+  PUSH(v);
 }
 
 OPCODE(getint) {

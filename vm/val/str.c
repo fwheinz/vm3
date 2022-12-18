@@ -121,6 +121,10 @@ int v_str_cmp (val_t *v1, val_t *v2) {
   return str_cmp(v1->u.str, v2->u.str);
 }
 
+int v_str_to_bool (val_t *v) {
+  return v->u.str->len != 0;
+}
+
 val_t *v_str_index (val_t *v, val_t *i) {
   if (i->type != T_NUM)
     return &val_undef;
@@ -180,6 +184,7 @@ void val_register_str (void) {
     .len    = v_str_len,
     .dup    = v_str_dup,
     .cmp    = v_str_cmp,
+    .to_bool= v_str_to_bool,
     .index  = v_str_index,
     .index_assign = v_str_index_assign,
     .to_string = v_str_dup,

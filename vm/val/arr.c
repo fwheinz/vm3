@@ -115,6 +115,10 @@ int v_arr_len (val_t *a) {
   return arr_len(a->u.arr);
 }
 
+int v_arr_to_bool (val_t *a) {
+  return arr_len(a->u.arr) != 0;
+}
+
 val_t *v_arr_dup (val_t *a) {
   val_t *r = val_new(T_ARR);
   r->u.arr = arr_dup(a->u.arr);
@@ -184,6 +188,7 @@ void val_register_arr (void) {
     .len    = v_arr_len,
     .dup    = v_arr_dup,
     .cmp    = NULL,
+    .to_bool= v_arr_to_bool,
     .index  = v_arr_index,
     .index_assign = v_arr_index_assign,
     .to_string = v_arr_to_string,

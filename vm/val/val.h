@@ -46,12 +46,13 @@ struct val {
 typedef struct val val_t;
 
 struct val_ops {
-  val_t *(*create)(void);
-  void   (*free  )(val_t *);
-  int    (*len   )(val_t *);
-  val_t *(*dup   )(val_t *);
-  int    (*cmp   )(val_t *, val_t *);
-  val_t *(*index )(val_t *v, val_t *i);
+  val_t *(*create )(void);
+  void   (*free   )(val_t *);
+  int    (*len    )(val_t *);
+  val_t *(*dup    )(val_t *);
+  int    (*cmp    )(val_t *, val_t *);
+  int    (*to_bool)(val_t *);
+  val_t *(*index  )(val_t *v, val_t *i);
   val_t *(*index_assign)(val_t *v, val_t *i, val_t *v2);
   val_t *(*to_string)(val_t *v);
   val_t *(*conv)(val_t *v);
@@ -79,6 +80,7 @@ void   val_free (val_t *val);
 int    val_len (val_t *val);
 val_t *val_dup (val_t *val);
 int    val_cmp (val_t *v1, val_t *v2);
+int    val_to_bool (val_t *v);
 val_t *val_index (val_t *val, val_t *i);
 val_t *val_index_assign (val_t *val, val_t *i, val_t *v2);
 val_t *val_to_string (val_t *val);

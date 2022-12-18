@@ -92,18 +92,6 @@
   case RET:
     op_ret(exec);
     break;
-  case MKARRAY:
-    op_mkarray(exec);
-    break;
-  case INDEXAS:
-    op_indexas(exec);
-    break;
-  case INDEX1:
-    op_index1(exec);
-    break;
-  case NOT:
-    op_not(exec);
-    break;
   case EQUAL:
     op_equal(exec);
     break;
@@ -122,8 +110,26 @@
   case GREATEREQUAL:
     op_greaterequal(exec);
     break;
+  case AND:
+    op_and(exec);
+    break;
+  case OR:
+    op_or(exec);
+    break;
+  case NOT:
+    op_not(exec);
+    break;
   case CREATEVAL:
     op_createval(exec);
+    break;
+  case MKARRAY:
+    op_mkarray(exec);
+    break;
+  case INDEX1:
+    op_index1(exec);
+    break;
+  case INDEXAS:
+    op_indexas(exec);
     break;
   case GETINT:
     op_getint(exec);

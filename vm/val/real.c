@@ -33,6 +33,10 @@ int v_real_cmp (val_t *v1, val_t *v2) {
   return v1->u.real - v2->u.real;
 }
 
+int v_real_to_bool (val_t *v) {
+  return v->u.real == 0.0;
+}
+
 val_t *v_real_to_string (val_t *real) {
   int l = snprintf(NULL, 0, "%f", real->u.real);
   char buf[l+1];
@@ -70,6 +74,7 @@ void val_register_real (void) {
     .len    = NULL,
     .dup    = v_real_dup,
     .cmp    = v_real_cmp,
+    .to_bool= v_real_to_bool,
     .index  = NULL,
     .index_assign = NULL,
     .to_string = v_real_to_string,

@@ -113,6 +113,14 @@ int val_cmp (val_t *v1, val_t *v2) {
   return -1;
 }
 
+int val_to_bool (val_t *v) {
+  int type = v->type;
+  if (!val_ops[type].to_bool)
+    return 0;
+  return val_ops[type].to_bool(v);
+}
+
+
 val_t *val_index (val_t *val, val_t *i) {
   int type = val->type;
   if (!val_ops[type].index)
