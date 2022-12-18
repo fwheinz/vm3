@@ -45,3 +45,5 @@ defun bar (a, b) {
     print("Falsex");
   };
 };
+
+print(1,2,3,4);

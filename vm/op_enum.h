@@ -1,5 +1,5 @@
 typedef struct exec exec_t;
-void op_foobar(exec_t *);
+void op_mymul(exec_t *);
 void op_add(exec_t *);
 void op_sub(exec_t *);
 void op_mul(exec_t *);
@@ -48,7 +48,7 @@ void op_jumprel(exec_t *);
 void op_noop(exec_t *);
 enum opcodes {
   INVALID,
-  FOOBAR,
+  MYMUL,
   ADD,
   SUB,
   MUL,

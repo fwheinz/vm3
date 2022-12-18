@@ -253,11 +253,11 @@ int compile_ast(astnode_t *root) {
       break;
 
     case aparams:
+      compile_ast(root->child[1]);
       if (root->child[0] != NULL)
         c = compile_ast(root->child[0]) + 1;
       else
         c = 0;
-      compile_ast(root->child[1]);
       return c;
       break;
 
@@ -282,7 +282,6 @@ void yyerror (const char *msg) {
 
 int main (int argc, char **argv) {
   p = prog_new();
-  prog_add_op(p, FOOBAR);
 
   yyin = fopen(argv[1], "r");
   int st = yyparse();
@@ -290,7 +289,7 @@ int main (int argc, char **argv) {
   prog_dump(p);
   prog_write(p, "foo.pc");
   exec_t *e = exec_new(p);
-  exec_set_debuglvl(e, E_DEBUG2);
+  exec_set_debuglvl(e, E_INFO);
   exec_run(e);
 
   return st;
