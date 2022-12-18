@@ -4,6 +4,8 @@
 #include <getopt.h>
 #include "vm/vm.h"
 
+#define METHOD1 1
+
 extern int yylineno;
 extern FILE *yyin;
 int yylex(void);
@@ -179,10 +181,10 @@ int compile_ast(astnode_t *root) {
     case _if:
 #ifdef METHOD1
       compile_ast(root->child[0]);
-      dstelse = prog_add_num(p, 0);
+      int dstelse = prog_add_num(p, 0);
       prog_add_op(p, JUMPF);
       compile_ast(root->child[1]);
-      dstend = prog_add_num(p, 0);
+      int dstend = prog_add_num(p, 0);
       prog_add_op(p, JUMP);
       prog_set_num(p, dstelse, prog_next_pc(p));
       compile_ast(root->child[2]);
