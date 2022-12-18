@@ -576,8 +576,6 @@ OPCODE(greaterequal) {
 } 
 
 OPCODE(halt) {
-  vmerror(E_INFO, exec, "VM halted.");
-  exit(EXIT_SUCCESS);
 }
 
 OPCODE(createval) {
@@ -646,8 +644,10 @@ prog_t *prog_read (char *filename) {
 #include "nativefuns.h"
 
 int exec_step (exec_t *exec) {
-  if (exec->pc >= prog_nr_ops(exec->prog))
+  if (exec->pc >= prog_nr_ops(exec->prog)) {
+    vmerror(E_INFO, exec, "Program end reached.");
     return 0;
+  }
 
   int op = prog_get_op(exec->prog, exec->pc);
   
@@ -661,6 +661,10 @@ int exec_step (exec_t *exec) {
       default:
         vmerror(E_WARN, exec, "Warning: Unknown op: %d\n", OP(op));
         break;
+    }
+    if (OP(op) == HALT) {
+      vmerror(E_INFO, exec, "Program ended with HALT");
+      return 0;
     }
   }
   if (exec->debuglvl >= E_DEBUG2)

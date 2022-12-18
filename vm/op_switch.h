@@ -59,6 +59,21 @@
   case DISCARD:
     op_discard(exec);
     break;
+  case LOOPBEGIN:
+    op_loopbegin(exec);
+    break;
+  case LOOPBODY:
+    op_loopbody(exec);
+    break;
+  case LOOPEND:
+    op_loopend(exec);
+    break;
+  case LOOPEXIT:
+    op_loopexit(exec);
+    break;
+  case LOOPRESTART:
+    op_looprestart(exec);
+    break;
   case MKARRAY:
     op_mkarray(exec);
     break;
@@ -79,21 +94,6 @@
     break;
   case RET:
     op_ret(exec);
-    break;
-  case LOOPBEGIN:
-    op_loopbegin(exec);
-    break;
-  case LOOPEND:
-    op_loopend(exec);
-    break;
-  case LOOPEXIT:
-    op_loopexit(exec);
-    break;
-  case LOOPBODY:
-    op_loopbody(exec);
-    break;
-  case LOOPRESTART:
-    op_looprestart(exec);
     break;
   case CONDBEGIN:
     op_condbegin(exec);

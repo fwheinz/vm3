@@ -19,6 +19,11 @@ void op_jumpt(exec_t *);
 void op_jumpf(exec_t *);
 void op_dup(exec_t *);
 void op_discard(exec_t *);
+void op_loopbegin(exec_t *);
+void op_loopbody(exec_t *);
+void op_loopend(exec_t *);
+void op_loopexit(exec_t *);
+void op_looprestart(exec_t *);
 void op_mkarray(exec_t *);
 void op_indexas(exec_t *);
 void op_index1(exec_t *);
@@ -26,11 +31,6 @@ void op_call(exec_t *);
 void op_not(exec_t *);
 void op_jumprel(exec_t *);
 void op_ret(exec_t *);
-void op_loopbegin(exec_t *);
-void op_loopend(exec_t *);
-void op_loopexit(exec_t *);
-void op_loopbody(exec_t *);
-void op_looprestart(exec_t *);
 void op_condbegin(exec_t *);
 void op_condelse(exec_t *);
 void op_condend(exec_t *);
@@ -66,6 +66,11 @@ enum opcodes {
   JUMPF,
   DUP,
   DISCARD,
+  LOOPBEGIN,
+  LOOPBODY,
+  LOOPEND,
+  LOOPEXIT,
+  LOOPRESTART,
   MKARRAY,
   INDEXAS,
   INDEX1,
@@ -73,11 +78,6 @@ enum opcodes {
   NOT,
   JUMPREL,
   RET,
-  LOOPBEGIN,
-  LOOPEND,
-  LOOPEXIT,
-  LOOPBODY,
-  LOOPRESTART,
   CONDBEGIN,
   CONDELSE,
   CONDEND,
