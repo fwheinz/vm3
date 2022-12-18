@@ -208,14 +208,14 @@ OPCODE(negate) {
 }
 
 OPCODE(inc) {
-  MINARGS(2);
+  MINARGS(1);
   val_t *a = PEEK;
   if (a->type == T_NUM)
     a->u.num++;
 }
 
 OPCODE(dec) {
-  MINARGS(2);
+  MINARGS(1);
   val_t *a = PEEK;
   if (a->type == T_NUM)
     a->u.num--;
