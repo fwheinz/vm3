@@ -59,7 +59,7 @@ int     prog_set_num (prog_t *prog, int pc, int num);
 void    prog_set_constant (prog_t *prog, int index, val_t *c);
 int     prog_new_constant (prog_t *prog, val_t *c);
 val_t  *prog_get_constant (prog_t *prog, int index);
-void    prog_register_function (prog_t *prog, val_t *name, int pc);
+void    prog_register_function (prog_t *prog, char *name, int pc);
 int     prog_next_pc (prog_t *prog);
 
 void    printstack (exec_t *exec);

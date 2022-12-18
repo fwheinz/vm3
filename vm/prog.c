@@ -134,8 +134,8 @@ int prog_next_pc (prog_t *prog) {
   return prog_nr_ops(prog);
 }
 
-void prog_register_function (prog_t *prog, val_t *name, int pc) {
-  map_set(prog->functions->u.map, name, v_num_new_int(pc));
+void prog_register_function (prog_t *prog, char *name, int pc) {
+  map_set(prog->functions->u.map, v_str_new_cstr(name), v_num_new_int(pc));
 }
 
 exec_t *exec_new (prog_t *prog) {
