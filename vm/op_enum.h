@@ -6,17 +6,23 @@ void op_mul(exec_t *);
 void op_divide(exec_t *);
 void op_modulo(exec_t *);
 void op_negate(exec_t *);
-void op_dup(exec_t *);
-void op_discard(exec_t *);
+void op_inc(exec_t *);
+void op_dec(exec_t *);
 void op_print(exec_t *);
-void op_mkarray(exec_t *);
-void op_indexas(exec_t *);
-void op_index1(exec_t *);
 void op_constant(exec_t *);
-void op_call(exec_t *);
+void op_getvar(exec_t *);
+void op_setvar(exec_t *);
+void op_getglobal(exec_t *);
+void op_setglobal(exec_t *);
 void op_jump(exec_t *);
 void op_jumpt(exec_t *);
 void op_jumpf(exec_t *);
+void op_dup(exec_t *);
+void op_discard(exec_t *);
+void op_mkarray(exec_t *);
+void op_indexas(exec_t *);
+void op_index1(exec_t *);
+void op_call(exec_t *);
 void op_not(exec_t *);
 void op_jumprel(exec_t *);
 void op_ret(exec_t *);
@@ -30,10 +36,6 @@ void op_condelse(exec_t *);
 void op_condend(exec_t *);
 void op_noop(exec_t *);
 void op_getint(exec_t *);
-void op_getvar(exec_t *);
-void op_setvar(exec_t *);
-void op_getglobal(exec_t *);
-void op_setglobal(exec_t *);
 void op_equal(exec_t *);
 void op_notequal(exec_t *);
 void op_less(exec_t *);
@@ -51,17 +53,23 @@ enum opcodes {
   DIVIDE,
   MODULO,
   NEGATE,
-  DUP,
-  DISCARD,
+  INC,
+  DEC,
   PRINT,
-  MKARRAY,
-  INDEXAS,
-  INDEX1,
   CONSTANT,
-  CALL,
+  GETVAR,
+  SETVAR,
+  GETGLOBAL,
+  SETGLOBAL,
   JUMP,
   JUMPT,
   JUMPF,
+  DUP,
+  DISCARD,
+  MKARRAY,
+  INDEXAS,
+  INDEX1,
+  CALL,
   NOT,
   JUMPREL,
   RET,
@@ -75,10 +83,6 @@ enum opcodes {
   CONDEND,
   NOOP,
   GETINT,
-  GETVAR,
-  SETVAR,
-  GETGLOBAL,
-  SETGLOBAL,
   EQUAL,
   NOTEQUAL,
   LESS,

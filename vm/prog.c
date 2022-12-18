@@ -115,11 +115,9 @@ int prog_new_constant (prog_t *prog, val_t *c) {
   int idx = prog->constants->u.arr->size;
   for (int i = 0; i < idx; i++) {
     if (val_cmp(c, arr_get(prog->constants->u.arr, i)) == 0) {
-      printf("Found constant %s (%d)\n", val_to_cstring(c), i);
       return i;
     }
   }
-  printf("Adding constant %s (%d)\n", val_to_cstring(c), idx);
   arr_set(prog->constants->u.arr, idx, c);
 
   return idx;
@@ -209,6 +207,109 @@ OPCODE(negate) {
   PUSH(r);
 }
 
+OPCODE(inc) {
+  MINARGS(2);
+  val_t *a = PEEK;
+  if (a->type == T_NUM)
+    a->u.num++;
+}
+
+OPCODE(dec) {
+  MINARGS(2);
+  val_t *a = PEEK;
+  if (a->type == T_NUM)
+    a->u.num--;
+}
+
+OPCODE(print) {
+  MINARGS(1);
+  val_t *a = POP;
+  val_t *s = val_to_string(a);
+  printf("> %s\n", cstr(s));
+}
+
+OPCODE(constant) {
+  MINARGS(1);
+  val_t *i = POP;
+  assert(i->type == T_NUM);
+  int idx = i->u.num;
+  val_t *c = prog_get_constant(exec->prog, idx);
+  PUSH(c);
+}
+
+OPCODE(getvar) {
+  MINARGS(1);
+  val_t *vars = vstack_peek(exec->vars);
+  assert(vars->type == T_ARR);
+  val_t *nrvar = POP;
+  assert(nrvar->type == T_NUM);
+  val_t *var = arr_get(vars->u.arr, nrvar->u.num + 2);
+  vmerror(E_DEBUG2, exec, "getvar %d: %s", nrvar->u.num, val_to_cstring(var));
+  PUSH(var);
+}
+
+OPCODE(setvar) {
+  MINARGS(2);
+  val_t *vars = vstack_peek(exec->vars);
+  assert(vars->type == T_ARR);
+  val_t *nrvar = POP;
+  assert(nrvar->type == T_NUM);
+  val_t *val = POP;
+  arr_set(vars->u.arr, nrvar->u.num + 2, val);
+  vmerror(E_DEBUG2, exec, "setvar %d: %s", nrvar->u.num, val_to_cstring(val));
+}
+
+OPCODE(getglobal) {
+  MINARGS(1);
+  val_t *nrvar = POP;
+  assert(nrvar->type == T_NUM);
+  val_t *var = arr_get(exec->global_vars->u.arr, nrvar->u.num);
+  vmerror(E_DEBUG2, exec, "getglobal %d: %s", nrvar->u.num, val_to_cstring(var));
+  PUSH(var);
+}
+
+OPCODE(setglobal) {
+  MINARGS(2);
+  val_t *nrvar = POP;
+  assert(nrvar->type == T_NUM);
+  val_t *val = PEEK;
+  arr_set(exec->global_vars->u.arr, nrvar->u.num, val);
+  vmerror(E_DEBUG2, exec, "setglobal %d: %s", nrvar->u.num, val_to_cstring(val));
+}
+
+OPCODE(jump) {
+  MINARGS(1);
+  val_t *dest = POP;
+  assert(dest->type == T_NUM);
+  int new_pc = dest->u.num;
+  vmerror(E_DEBUG2, exec, "Jumping to %d", new_pc);
+  exec->pc = new_pc - 1; // Because we increment later
+}
+
+OPCODE(jumpt) {
+  MINARGS(2);
+  val_t *dest = POP;
+  assert(dest->type == T_NUM);
+  int new_pc = dest->u.num;
+  val_t *cond = POP;
+  assert(cond->type == T_NUM);
+  vmerror(E_DEBUG2, exec, "Jumping to %d if %d true", new_pc, cond->u.num);
+  if (cond->u.num != 0)
+    exec->pc = new_pc - 1; // Because we increment later
+}
+
+OPCODE(jumpf) {
+  MINARGS(2);
+  val_t *dest = POP;
+  assert(dest->type == T_NUM);
+  int new_pc = dest->u.num;
+  val_t *cond = POP;
+  assert(cond->type == T_NUM);
+  vmerror(E_DEBUG2, exec, "Jumping to %d if %d false", new_pc, cond->u.num);
+  if (cond->u.num == 0)
+    exec->pc = new_pc - 1; // Because we increment later
+}
+
 OPCODE(dup) {
   MINARGS(1);
   val_t *v = POP;
@@ -219,13 +320,6 @@ OPCODE(dup) {
 OPCODE(discard) {
   MINARGS(1);
   POP;
-}
-
-OPCODE(print) {
-  MINARGS(1);
-  val_t *a = POP;
-  val_t *s = val_to_string(a);
-  printf("> %s\n", cstr(s));
 }
 
 OPCODE(mkarray) {
@@ -260,15 +354,6 @@ OPCODE(index1) {
   PUSH(v);
 }
 
-OPCODE(constant) {
-  MINARGS(1);
-  val_t *i = POP;
-  assert(i->type == T_NUM);
-  int idx = i->u.num;
-  val_t *c = prog_get_constant(exec->prog, idx);
-  PUSH(c);
-}
-
 OPCODE(call) {
   MINARGS(2);
 
@@ -301,39 +386,6 @@ OPCODE(call) {
       PUSH(&val_undef);
     }
   }
-}
-
-OPCODE(jump) {
-  MINARGS(1);
-  val_t *dest = POP;
-  assert(dest->type == T_NUM);
-  int new_pc = dest->u.num;
-  vmerror(E_DEBUG2, exec, "Jumping to %d", new_pc);
-  exec->pc = new_pc - 1; // Because we increment later
-}
-
-OPCODE(jumpt) {
-  MINARGS(2);
-  val_t *dest = POP;
-  assert(dest->type == T_NUM);
-  int new_pc = dest->u.num;
-  val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  vmerror(E_DEBUG2, exec, "Jumping to %d on %d", new_pc, cond->u.num);
-  if (cond->u.num != 0)
-    exec->pc = new_pc - 1; // Because we increment later
-}
-
-OPCODE(jumpf) {
-  MINARGS(2);
-  val_t *dest = POP;
-  assert(dest->type == T_NUM);
-  int new_pc = dest->u.num;
-  val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  vmerror(E_DEBUG2, exec, "Jumping to %d on %d", new_pc, cond->u.num);
-  if (cond->u.num == 0)
-    exec->pc = new_pc - 1; // Because we increment later
 }
 
 OPCODE(not) {
@@ -462,44 +514,6 @@ OPCODE(getint) {
   int nr = s ? atoi(s) : 0;
   val_t *v = v_num_new_int(nr);
   PUSH(v);
-}
-
-OPCODE(getvar) {
-  MINARGS(1);
-  val_t *vars = vstack_peek(exec->vars);
-  assert(vars->type == T_ARR);
-  val_t *nrvar = POP;
-  assert(nrvar->type == T_NUM);
-  val_t *var = arr_get(vars->u.arr, nrvar->u.num + 2);
-  vmerror(E_DEBUG2, exec, "getvar %d: %s", nrvar->u.num, val_to_cstring(var));
-  PUSH(var);
-}
-
-OPCODE(setvar) {
-  MINARGS(2);
-  val_t *vars = vstack_peek(exec->vars);
-  assert(vars->type == T_ARR);
-  val_t *nrvar = POP;
-  assert(nrvar->type == T_NUM);
-  val_t *val = POP;
-  arr_set(vars->u.arr, nrvar->u.num + 2, val);
-  vmerror(E_DEBUG2, exec, "setvar %d: %s", nrvar->u.num, val_to_cstring(val));
-}
-
-OPCODE(getglobal) {
-  MINARGS(1);
-  val_t *nrvar = POP;
-  assert(nrvar->type == T_NUM);
-  val_t *var = arr_get(exec->global_vars->u.arr, nrvar->u.num);
-  PUSH(var);
-}
-
-OPCODE(setglobal) {
-  MINARGS(2);
-  val_t *nrvar = POP;
-  assert(nrvar->type == T_NUM);
-  val_t *val = PEEK;
-  arr_set(exec->global_vars->u.arr, nrvar->u.num, val);
 }
 
 OPCODE(equal) {
@@ -643,7 +657,8 @@ int exec_step (exec_t *exec) {
         break;
     }
   }
-  vmerror(E_DEBUG2, exec, "%s", val_to_cstring(getstack(exec)));
+  if (exec->debuglvl >= E_DEBUG2)
+    vmerror(E_DEBUG2, exec, "%s", val_to_cstring(getstack(exec)));
   exec->pc++;
   vals_gc(exec);
 

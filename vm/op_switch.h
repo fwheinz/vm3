@@ -20,14 +20,44 @@
   case NEGATE:
     op_negate(exec);
     break;
+  case INC:
+    op_inc(exec);
+    break;
+  case DEC:
+    op_dec(exec);
+    break;
+  case PRINT:
+    op_print(exec);
+    break;
+  case CONSTANT:
+    op_constant(exec);
+    break;
+  case GETVAR:
+    op_getvar(exec);
+    break;
+  case SETVAR:
+    op_setvar(exec);
+    break;
+  case GETGLOBAL:
+    op_getglobal(exec);
+    break;
+  case SETGLOBAL:
+    op_setglobal(exec);
+    break;
+  case JUMP:
+    op_jump(exec);
+    break;
+  case JUMPT:
+    op_jumpt(exec);
+    break;
+  case JUMPF:
+    op_jumpf(exec);
+    break;
   case DUP:
     op_dup(exec);
     break;
   case DISCARD:
     op_discard(exec);
-    break;
-  case PRINT:
-    op_print(exec);
     break;
   case MKARRAY:
     op_mkarray(exec);
@@ -38,20 +68,8 @@
   case INDEX1:
     op_index1(exec);
     break;
-  case CONSTANT:
-    op_constant(exec);
-    break;
   case CALL:
     op_call(exec);
-    break;
-  case JUMP:
-    op_jump(exec);
-    break;
-  case JUMPT:
-    op_jumpt(exec);
-    break;
-  case JUMPF:
-    op_jumpf(exec);
     break;
   case NOT:
     op_not(exec);
@@ -91,18 +109,6 @@
     break;
   case GETINT:
     op_getint(exec);
-    break;
-  case GETVAR:
-    op_getvar(exec);
-    break;
-  case SETVAR:
-    op_setvar(exec);
-    break;
-  case GETGLOBAL:
-    op_getglobal(exec);
-    break;
-  case SETGLOBAL:
-    op_setglobal(exec);
     break;
   case EQUAL:
     op_equal(exec);
