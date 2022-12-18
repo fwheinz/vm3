@@ -3,6 +3,8 @@
 
 #include "prog.h"
 
+char *strdup (const char *s);
+
 static struct varalloc varalloc;
 
 struct var *_var_lookup (char *id, struct var *list, int len) {

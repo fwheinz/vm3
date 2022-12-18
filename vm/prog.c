@@ -598,6 +598,7 @@ void prog_dump (prog_t *prog) {
       printf("%3d: OP %s (%d)\n", i, opcodestr[OP(op)], OP(op));
     }
   }
+  fflush(stdout);
 }
 
 void prog_write (prog_t *p, char *filename) {

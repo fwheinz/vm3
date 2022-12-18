@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -ggdb -Wall -I. -Werror
+CFLAGS=-O2 -ggdb -Wall -I. -Werror --std=c11
 
 OBJ=prog.o custom.o stack.o vstack.o val/str.o val/num.o val/arr.o val/real.o val/val.o val/map.o vars.o
 LIBS=
@@ -21,6 +21,6 @@ includes:
 	./mkincludes.sh
 
 clean:
-	rm -f $(OBJ) vm libvm3.a main.o
+	rm -f $(OBJ) vm vm.o libvm3.a main.o
 
 .PHONY: includes

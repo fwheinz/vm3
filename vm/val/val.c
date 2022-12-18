@@ -56,7 +56,6 @@ void val_free (val_t *val) {
   int type = val->type;
   if (val_ops[type].free)
     val_ops[type].free(val);
-  memset(val, sizeof(*val), 'A');
   val->type = -1;
   free(val);
 }

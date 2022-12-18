@@ -41,9 +41,10 @@ val_t *v_num_to_string (val_t *num) {
 }
 
 val_t *v_num_conv (val_t *v) {
+ char *ptr;
  switch (v->type) {
    case T_STR:
-     char *ptr = v->u.str->buf;
+     ptr = v->u.str->buf;
      int nr = strtoul(ptr, &ptr, 10);
      if (*ptr != '\0') {
        return &val_undef;

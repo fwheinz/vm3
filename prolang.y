@@ -91,7 +91,7 @@ STR: str { $$ = node(str); $$->v.str = $1; }
 prog_t *p;
 
 int compile_ast(astnode_t *root) {
-  int c;
+  int c, nrparams, jmp, pc, jt;
   struct var *v;
 
   if (root == NULL)
@@ -162,8 +162,8 @@ int compile_ast(astnode_t *root) {
 
     case repeat:
       prog_add_num(p, root->child[0]->v.num);
-      int pc = prog_add_op(p, DUP);
-      int jt = prog_add_num(p, 0);
+      pc = prog_add_op(p, DUP);
+      jt = prog_add_num(p, 0);
       prog_add_op(p, JUMPF);
       prog_add_num(p, 1);
       prog_add_op(p, SUB);
@@ -179,10 +179,10 @@ int compile_ast(astnode_t *root) {
     case _if:
 #ifdef METHOD1
       compile_ast(root->child[0]);
-      int dstelse = prog_add_num(p, 0);
+      dstelse = prog_add_num(p, 0);
       prog_add_op(p, JUMPF);
       compile_ast(root->child[1]);
-      int dstend = prog_add_num(p, 0);
+      dstend = prog_add_num(p, 0);
       prog_add_op(p, JUMP);
       prog_set_num(p, dstelse, prog_next_pc(p));
       compile_ast(root->child[2]);
@@ -219,7 +219,7 @@ int compile_ast(astnode_t *root) {
       break;
 
     case funcall:
-      int nrparams = 0;
+      nrparams = 0;
       if (root->child[1] != NULL)
         nrparams = compile_ast(root->child[1])+1;
       prog_add_num(p, nrparams);
@@ -230,7 +230,7 @@ int compile_ast(astnode_t *root) {
       break;
 
     case func:
-      int jmp = prog_add_num(p, 0);
+      jmp = prog_add_num(p, 0);
       prog_add_op(p, JUMP);
       var_reset();
       compile_ast(root->child[1]);

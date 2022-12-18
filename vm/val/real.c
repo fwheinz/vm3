@@ -41,9 +41,10 @@ val_t *v_real_to_string (val_t *real) {
 }
 
 val_t *v_real_conv (val_t *v) {
+ char *ptr;
  switch (v->type) {
    case T_STR:
-     char *ptr = v->u.str->buf;
+     ptr = v->u.str->buf;
      double nr = atof(ptr);
      return v_real_new_double(nr);
    default:
