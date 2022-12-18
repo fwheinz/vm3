@@ -21,6 +21,6 @@ includes:
 	./mkincludes.sh
 
 clean:
-	rm -f $(OBJ) vm vm.o libvm3.a main.o
+	rm -f $(OBJ) vm main vm.o libvm3.a main.o
 
 .PHONY: includes

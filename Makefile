@@ -3,7 +3,7 @@ CFLAGS=-ggdb -Wall -Ivm --std=gnu11
 OBJS=
 TARGETS=prolang
 
-all: $(TARGETS)
+all: clean $(TARGETS)
 
 %: %.lex.o %.tab.o $(OBJS) vm/libvm3.a
 	$(CC) -o $@ $^
