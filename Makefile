@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-ggdb -Wall -Ivm --std=c99
+CFLAGS=-ggdb -Wall -Ivm --std=gnu11
 OBJS=
 TARGETS=prolang
 

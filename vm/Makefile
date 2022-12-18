@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -ggdb -Wall -I. -Werror --std=c11
+CFLAGS=-O2 -ggdb -Wall -I. -Werror --std=gnu11
 
 OBJ=prog.o custom.o stack.o vstack.o val/str.o val/num.o val/arr.o val/real.o val/val.o val/map.o vars.o
 LIBS=
