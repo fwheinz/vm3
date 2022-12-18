@@ -40,9 +40,9 @@ defun bar (a, b) {
   print(50+b+a);
   print("Yohaa");
   if (0) {
-    print("Truex");
+    print("XTrue");
   } else {
-    print("Falsex");
+    print("XFalse");
   };
 };
 

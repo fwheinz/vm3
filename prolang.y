@@ -1,7 +1,9 @@
 %{
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <errno.h>
 #include "vm/vm.h"
 
 #define METHOD1 1
@@ -46,6 +48,7 @@ int compile_ast(astnode_t *root);
 
 %right _return
 %right '='
+%left neq
 %left '<'
 %left '+' '-'
 %left '*'
@@ -64,6 +67,7 @@ STMT: repeat '(' NUM ')' '{' STMTS '}'  { $$ = node(repeat); $$->child[0] = $3; 
     | STMT '*' STMT { $$ = node('*'); $$->child[0] = $1; $$->child[1] = $3; }
     | STMT '-' STMT { $$ = node('-'); $$->child[0] = $1; $$->child[1] = $3; }
     | STMT '<' STMT { $$ = node('<'); $$->child[0] = $1; $$->child[1] = $3; }
+    | STMT neq STMT { $$ = node(neq); $$->child[0] = $1; $$->child[1] = $3; }
     | ID '(' APARAMS ')' { $$ = node(funcall); $$->child[0] = $1; $$->child[1] = $3; }
     | defun ID '(' FPARAMS ')' '{' STMTS '}'  { $$ = node(func); $$->child[0] = $2; $$->child[1] = $4; $$->child[2] = $7; }
     | ID '=' STMT { $$ = node('='); $$->child[0] = $1; $$->child[1] = $3; }
@@ -129,6 +133,12 @@ int compile_ast(astnode_t *root) {
       prog_add_op(p, LESS);
       break;
 
+    case neq:
+      compile_ast(root->child[1]);
+      compile_ast(root->child[0]);
+      prog_add_op(p, NOTEQUAL);
+      break;
+
     case '=':
       compile_ast(root->child[1]);
       v = var_get_or_addlocal(root->child[0]->v.id);
@@ -189,6 +199,7 @@ int compile_ast(astnode_t *root) {
       prog_set_num(p, dstelse, prog_next_pc(p));
       compile_ast(root->child[2]);
       prog_set_num(p, dstend, prog_next_pc(p));
+      prog_add_num(p, 0);
 #else
       compile_ast(root->child[0]);
       prog_add_op(p, CONDBEGIN);
@@ -210,6 +221,7 @@ int compile_ast(astnode_t *root) {
       prog_add_num(p, loopstart);
       prog_add_op(p, JUMP);
       prog_set_num(p, jumpend, prog_next_pc(p));
+      prog_add_num(p, 0);
 #else
       prog_add_op(p, LOOPBEGIN);
       compile_ast(root->child[0]);
@@ -282,17 +294,60 @@ void yyerror (const char *msg) {
   fprintf(stderr, "Line %d: %s\n", yylineno, msg);
 }
 
+void usage (void) {
+  fprintf(stderr, "prolang [-v] [-d] <file>\n"
+      "        -v  Increase verbosity\n"
+      "        -d  Dump file (no execution)\n"
+      "    <file>  Bytecode filename\n"
+      "\n"
+      );
+
+  exit(EXIT_FAILURE);
+}
+
 int main (int argc, char **argv) {
+  int verbose = 0, dump = 0, opt;
+
+  while ((opt = getopt(argc, argv, "vd")) != -1) {
+    switch (opt) {
+      case 'v':
+        verbose++;
+        break;
+      case 'd':
+        dump++;
+        break;
+      default:
+        usage();
+    }
+  }
+
+  if (optind >= argc) {
+    usage();
+    exit(EXIT_FAILURE);
+  }
+
+
   p = prog_new();
-
-  yyin = fopen(argv[1], "r");
+  yyin = fopen(argv[optind], "r");
+  if (yyin == NULL) {
+    printf("Could not open file %s: %s\n", argv[optind], strerror(errno));
+    usage();
+  }
   int st = yyparse();
-
   prog_dump(p);
-  prog_write(p, "foo.pc");
+  if (st) {
+    printf("Parsing failed!\n");
+    exit(EXIT_FAILURE);
+  }
+
+  char bytecodefile[100];
+  snprintf(bytecodefile, sizeof(bytecodefile), "%s.vm3", argv[optind]);
+  prog_write(p, bytecodefile);
   exec_t *e = exec_new(p);
-  exec_set_debuglvl(e, E_INFO);
+  exec_set_debuglvl(e, verbose);
   exec_run(e);
+
 
   return st;
 }
+

@@ -4,6 +4,7 @@
 
 %option noinput nounput noyywrap yylineno
 
+NEQ    "!="
 HELLO  "hello"
 REPEAT "repeat"
 DEFUN  "defun"
@@ -19,6 +20,7 @@ STR    \"[^\"]*\"
 
 {HELLO}  { return hello;  }
 {DEFUN}  { return defun;  }
+{NEQ}    { return neq;    }
 {IF}     { return _if;    }
 {ELSE}   { return _else;  }
 {WHILE}  { return _while; }

@@ -67,7 +67,7 @@ void    printstack (exec_t *exec);
 val_t  *call_native (exec_t *, char *id, val_t *args);
 
 prog_t *prog_read (char *filename);
-void prog_write(prog_t *p, char *filename);
+int prog_write(prog_t *p, char *filename);
 
 exec_t *exec_new  (prog_t *prog);
 int     exec_step (exec_t *exec);

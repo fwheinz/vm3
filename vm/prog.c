@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
+#include <errno.h>
 
 #include "prog.h"
 #include "op_str.h"
@@ -617,6 +619,15 @@ NATIVE(getint) {
   return v;
 }
 
+NATIVE(random) {
+  val_t *maxrand = ARG(0);
+  int r = rand();
+  if (maxrand->type == T_NUM) {
+    r = r % maxrand->u.num;
+  }
+  return v_num_new_int(r);
+}
+
 NATIVE(getstring) {
   char buf[1024];
   printf("<< ");
@@ -658,19 +669,25 @@ void prog_dump (prog_t *prog) {
   fflush(stdout);
 }
 
-void prog_write (prog_t *p, char *filename) {
+int prog_write (prog_t *p, char *filename) {
   FILE *f = fopen(filename, "w");
+  if (!f) {
+    vmerror(E_ERR, NULL, "prog_write: Could not open file %s (%s)", filename, strerror(errno));
+    return 0;
+  }
 
   val_serialize(f, p->constants);
   val_serialize(f, p->functions);
   val_serialize(f, p->ops);
+
+  return 1;
 }
 
 prog_t *prog_read (char *filename) {
   FILE *f = fopen(filename, "r");
   if (!f) {
-    printf("File %s not found!\n", filename);
-    assert(0);
+    vmerror(E_ERR, NULL, "prog_read: Could not open file %s (%s)", filename, strerror(errno));
+    return NULL;
   }
   prog_t *p = prog_new();
   p->constants = val_deserialize(f);
@@ -716,6 +733,7 @@ int exec_step (exec_t *exec) {
 
 void exec_run (exec_t *exec) {
   int st;
+  srand(time(NULL));
 
   do {
     st = exec_step(exec);
