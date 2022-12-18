@@ -10,6 +10,7 @@ typedef struct val val_t;
 #include "num.h"
 #include "arr.h"
 #include "map.h"
+#include "real.h"
 
 #define GC_THRESHOLD 20
 
