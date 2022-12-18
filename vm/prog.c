@@ -22,8 +22,10 @@ int vmerror (int lvl, exec_t *ctx, char *format, ...) {
   va_start(args, format);
   vsnprintf(buf, sizeof(buf), format, args);
   va_end(args);
-  if (!ctx || ctx->debuglvl >= lvl)
+  if (!ctx || ctx->debuglvl >= lvl) {
     fprintf(stderr, "%s: %s\n", lvlstr[lvl], buf);
+    fflush(stderr);
+  }
   if (lvl == E_ERR)
     exit(EXIT_FAILURE);
 
@@ -43,6 +45,7 @@ val_t *getstack (exec_t *exec) {
 
 void printstack (exec_t *exec) {
   printf("%s\n", val_to_cstring(getstack(exec)));
+  fflush(stdout);
 }
 
 prog_t *prog_new (void) {
@@ -226,6 +229,7 @@ OPCODE(print) {
   val_t *a = POP;
   val_t *s = val_to_string(a);
   printf("> %s\n", cstr(s));
+  fflush(stdout);
 }
 
 OPCODE(constant) {
@@ -598,6 +602,7 @@ NATIVE(print) {
   val_t *a = ARG(0);
   val_t *s = val_to_string(a);
   printf("> %s\n", cstr(s));
+  fflush(stdout);
   return &val_undef;
 }
 
