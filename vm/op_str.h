@@ -42,6 +42,7 @@ char *opcodestr[] = {
  "CALL",
  "RET",
  "CREATEVAL",
+ "CAST",
  "MKARRAY",
  "INDEX1",
  "INDEXAS",

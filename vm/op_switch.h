@@ -122,6 +122,9 @@
   case CREATEVAL:
     op_createval(exec);
     break;
+  case CAST:
+    op_cast(exec);
+    break;
   case MKARRAY:
     op_mkarray(exec);
     break;

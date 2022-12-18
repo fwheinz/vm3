@@ -546,6 +546,14 @@ OPCODE(createval) {
   PUSH(val_create(type->u.num));
 }
 
+OPCODE(cast) {
+  MINARGS(2);
+  val_t *type = POP;
+  val_t *val = POP;
+  assert(type->type == T_NUM);
+  PUSH(val_conv(type->u.num, val));
+}
+
 OPCODE(mkarray) {
   MINARGS(1);
   val_t *n = POP;

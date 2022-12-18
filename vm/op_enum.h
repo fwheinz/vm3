@@ -40,6 +40,7 @@ void op_halt(exec_t *);
 void op_call(exec_t *);
 void op_ret(exec_t *);
 void op_createval(exec_t *);
+void op_cast(exec_t *);
 void op_mkarray(exec_t *);
 void op_index1(exec_t *);
 void op_indexas(exec_t *);
@@ -89,6 +90,7 @@ enum opcodes {
   CALL,
   RET,
   CREATEVAL,
+  CAST,
   MKARRAY,
   INDEX1,
   INDEXAS,
