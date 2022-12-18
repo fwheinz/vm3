@@ -234,7 +234,7 @@ int compile_ast(astnode_t *root) {
       prog_add_op(p, JUMP);
       var_reset();
       compile_ast(root->child[1]);
-      prog_register_function(p, v_str_new_cstr(root->child[0]->v.id), prog_next_pc(p));
+      prog_register_function(p, root->child[0]->v.id, prog_next_pc(p));
       compile_ast(root->child[2]);
       prog_add_num(p, 0);
       prog_add_op(p, RET);
