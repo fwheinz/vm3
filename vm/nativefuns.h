@@ -4,6 +4,7 @@ val_t *native_getint (exec_t *exec, val_t *args);
 val_t *native_random (exec_t *exec, val_t *args);
 val_t *native_getstring (exec_t *exec, val_t *args);
 val_t *native_print (exec_t *exec, val_t *args);
+val_t *native_println (exec_t *exec, val_t *args);
 val_t *call_native (exec_t *exec, char *id, val_t *args) {
  if (0) {
   } else if (strcmp(id, "myadd") == 0) {
@@ -16,5 +17,7 @@ val_t *call_native (exec_t *exec, char *id, val_t *args) {
      return native_getstring(exec, args);
   } else if (strcmp(id, "print") == 0) {
      return native_print(exec, args);
+  } else if (strcmp(id, "println") == 0) {
+     return native_println(exec, args);
  } else { return NULL; }
 }

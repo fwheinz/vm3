@@ -25,7 +25,7 @@ vm/libvm3.a:
 
 clean:
 	make -C vm clean
-	rm -f *.lex.* *.tab.* *.o $(TARGETS)
+	rm -f *.lex.* *.tab.* *.o $(TARGETS) *.vm3
 
 .PHONY: vm/libvm3.a
 

@@ -642,7 +642,19 @@ NATIVE(getstring) {
 
 NATIVE(print) {
   int i = 0;
-  printf(">");
+  while (1) {
+    val_t *a = ARG(i++);
+    if (a->type == T_UNDEF)
+      break;
+    val_t *s = val_to_string(a);
+    printf(" %s", cstr(s));
+  }
+  fflush(stdout);
+  return &val_undef;
+}
+
+NATIVE(println) {
+  int i = 0;
   while (1) {
     val_t *a = ARG(i++);
     if (a->type == T_UNDEF)
@@ -654,6 +666,8 @@ NATIVE(print) {
   fflush(stdout);
   return &val_undef;
 }
+
+
 
 void prog_dump (prog_t *prog) {
   printf("Constants: %s\n", val_to_cstring(prog->constants));
