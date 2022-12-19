@@ -158,8 +158,10 @@ val_t *v_str_conv (val_t *val) {
 
 void v_str_serialize (FILE *f, val_t *v) {
   write_int(f, v->u.str->len);
-  int nr = fwrite(v->u.str->buf, v->u.str->len, 1, f);
-  assert(nr == 1);
+  if (v->u.str->len > 0) {
+    int nr = fwrite(v->u.str->buf, v->u.str->len, 1, f);
+    assert(nr == 1);
+  }
 }
 
 val_t *v_str_deserialize (FILE *f) {
@@ -167,8 +169,10 @@ val_t *v_str_deserialize (FILE *f) {
   v->u.str->len = read_int(f);
   v->u.str->buf = malloc(v->u.str->len+1);
   v->u.str->buf[v->u.str->len] = 0;
-  int nr = fread(v->u.str->buf, v->u.str->len, 1, f);
-  assert(nr == 1);
+  if (v->u.str->len > 0) {
+    int nr = fread(v->u.str->buf, v->u.str->len, 1, f);
+    assert(nr == 1);
+  }
   return v;
 }
 
