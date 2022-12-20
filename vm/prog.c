@@ -401,6 +401,14 @@ OPCODE(dup) {
   PUSH(v);
 }
 
+OPCODE(copy) {
+  MINARGS(1);
+  val_t *v = POP;
+  PUSH(val_dup(v));
+}
+
+
+
 OPCODE(discard) {
   MINARGS(1);
   POP;
