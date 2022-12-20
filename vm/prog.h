@@ -8,6 +8,11 @@
 
 #include "op_enum.h"
 
+// Some aliases
+#define DIVIDE DIV
+#define MODULO MOD
+#define NEGATE MOD
+
 enum errors {
   E_ERR,
   E_WARN,
