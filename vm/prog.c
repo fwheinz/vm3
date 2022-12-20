@@ -574,7 +574,7 @@ OPCODE(index1) {
   val_t *a = POP;
   val_t *i = POP;
 
-  val_t *v = v_arr_index(a, i);
+  val_t *v = val_index(a, i);
   PUSH(v);
 }
 
@@ -584,7 +584,7 @@ OPCODE(indexas) {
   val_t *i = POP;
   val_t *v = POP;
 
-  v_arr_index_assign(a, i, v);
+  val_index_assign(a, i, v);
 }
 
 OPCODE(getint) {
