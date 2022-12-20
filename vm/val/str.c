@@ -64,7 +64,7 @@ str_t *str_index (str_t *str, int i) {
   str_t *s = NULL;
 
   if (i < str->len)
-    s = str_new_buf(&str->buf[0], 1);
+    s = str_new_buf(&str->buf[i], 1);
   else {
     vmerror(E_WARN, 0, "String index out of bounds, len: %d, index: %d", str->len, i);
     s = str_create();
@@ -130,7 +130,7 @@ val_t *v_str_index (val_t *v, val_t *i) {
     return &val_undef;
   val_t *v2 = val_new(T_STR);
   v2->u.str = str_index(v->u.str, i->u.num);
-  return v;
+  return v2;
 }
 
 val_t *v_str_index_assign (val_t *v1, val_t *i, val_t *v2) {
