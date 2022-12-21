@@ -564,6 +564,13 @@ OPCODE(cast) {
   PUSH(val_conv(type->u.num, val));
 }
 
+OPCODE(len) {
+  MINARGS(1);
+  val_t *v = POP;
+  int len = val_len(v);
+  PUSH(v_num_new_int(len));
+}
+
 OPCODE(mkarray) {
   MINARGS(1);
   val_t *n = POP;
