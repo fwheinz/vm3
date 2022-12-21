@@ -376,9 +376,9 @@ OPCODE(jumpt) {
   assert(dest->type == T_NUM);
   int new_pc = dest->u.num;
   val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  vmerror(E_DEBUG2, exec, "Jumping to %d if %d true", new_pc, cond->u.num);
-  if (cond->u.num != 0)
+  int c = val_to_bool(cond);
+  vmerror(E_DEBUG2, exec, "Jumping to %d if %d true", new_pc, c);
+  if (c)
     exec->pc = new_pc - 1; // Because we increment later
 }
 
@@ -388,9 +388,9 @@ OPCODE(jumpf) {
   assert(dest->type == T_NUM);
   int new_pc = dest->u.num;
   val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  vmerror(E_DEBUG2, exec, "Jumping to %d if %d false", new_pc, cond->u.num);
-  if (cond->u.num == 0)
+  int c = val_to_bool(cond);
+  vmerror(E_DEBUG2, exec, "Jumping to %d if %d false", new_pc, c);
+  if (c == 0)
     exec->pc = new_pc - 1; // Because we increment later
 }
 
@@ -417,8 +417,7 @@ OPCODE(discard) {
 OPCODE(condbegin) {
   MINARGS(1);
   val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  int v = cond->u.num;
+  int v = val_to_bool(cond);
   if (v)
     return;
 
@@ -466,8 +465,7 @@ OPCODE(loopbegin) {
 OPCODE(loopbody) {
   MINARGS(1);
   val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  int v = cond->u.num;
+  int v = val_to_bool(cond);
   if (!v)
     op_loopexit(exec);
 }
@@ -616,8 +614,8 @@ OPCODE(jumprel) {
   assert(dest->type == T_NUM);
   int new_pc = dest->u.num;
   val_t *cond = POP;
-  assert(cond->type == T_NUM);
-  if (cond->u.num != 0)
+  int c = val_to_bool(cond);
+  if (c != 0)
     exec->pc += new_pc - 1; // Because we increment later
 }
 
