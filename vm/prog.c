@@ -215,15 +215,21 @@ OPCODE(negate) {
 OPCODE(inc) {
   MINARGS(1);
   val_t *a = PEEK;
-  if (a->type == T_NUM)
-    a->u.num++;
+  if (a->type == T_NUM) {
+    val_t *n = v_num_new_int(a->u.num+1);
+    POP;
+    PUSH(v);
+  }
 }
 
 OPCODE(dec) {
   MINARGS(1);
   val_t *a = PEEK;
-  if (a->type == T_NUM)
-    a->u.num--;
+  if (a->type == T_NUM) {
+    val_t *n = v_num_new_int(a->u.num-1);
+    POP;
+    PUSH(v);
+  }
 }
 
 OPCODE(equal) {
