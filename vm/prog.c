@@ -218,7 +218,7 @@ OPCODE(inc) {
   if (a->type == T_NUM) {
     val_t *n = v_num_new_int(a->u.num+1);
     POP;
-    PUSH(v);
+    PUSH(n);
   }
 }
 
@@ -228,7 +228,7 @@ OPCODE(dec) {
   if (a->type == T_NUM) {
     val_t *n = v_num_new_int(a->u.num-1);
     POP;
-    PUSH(v);
+    PUSH(n);
   }
 }
 
