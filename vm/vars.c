@@ -66,7 +66,7 @@ void var_enter_block (void) {
 void var_leave_block (void) {
   for (int i = varalloc.nrlocals-1; i >= 0; i--) {
     if (varalloc.locals[i].nr == VAR_BLOCKBORDER) {
-      varalloc.nrlocals = i - 1;
+      varalloc.nrlocals = i;
       break;
     }
   }
