@@ -362,7 +362,7 @@ OPCODE(setglobal) {
   MINARGS(2);
   val_t *nrvar = POP;
   assert(nrvar->type == T_NUM);
-  val_t *val = PEEK;
+  val_t *val = POP;
   arr_set(exec->global_vars->u.arr, nrvar->u.num, val);
   vmerror(E_DEBUG2, exec, "setglobal %d: %s", nrvar->u.num, val_to_cstring(val));
 }
