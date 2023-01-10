@@ -83,6 +83,9 @@
   case DUP:
     op_dup(exec);
     break;
+  case COPY:
+    op_copy(exec);
+    break;
   case DISCARD:
     op_discard(exec);
     break;
@@ -124,6 +127,9 @@
     break;
   case CAST:
     op_cast(exec);
+    break;
+  case LEN:
+    op_len(exec);
     break;
   case MKARRAY:
     op_mkarray(exec);

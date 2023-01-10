@@ -27,6 +27,7 @@ void op_jump(exec_t *);
 void op_jumpt(exec_t *);
 void op_jumpf(exec_t *);
 void op_dup(exec_t *);
+void op_copy(exec_t *);
 void op_discard(exec_t *);
 void op_condbegin(exec_t *);
 void op_condelse(exec_t *);
@@ -41,6 +42,7 @@ void op_call(exec_t *);
 void op_ret(exec_t *);
 void op_createval(exec_t *);
 void op_cast(exec_t *);
+void op_len(exec_t *);
 void op_mkarray(exec_t *);
 void op_index1(exec_t *);
 void op_indexas(exec_t *);
@@ -77,6 +79,7 @@ enum opcodes {
   JUMPT,
   JUMPF,
   DUP,
+  COPY,
   DISCARD,
   CONDBEGIN,
   CONDELSE,
@@ -91,6 +94,7 @@ enum opcodes {
   RET,
   CREATEVAL,
   CAST,
+  LEN,
   MKARRAY,
   INDEX1,
   INDEXAS,

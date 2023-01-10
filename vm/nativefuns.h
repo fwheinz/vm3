@@ -21,3 +21,19 @@ val_t *call_native (exec_t *exec, char *id, val_t *args) {
      return native_println(exec, args);
  } else { return NULL; }
 }
+int native_exists (char *id) {
+ if (0) {
+  } else if (strcmp(id, "myadd") == 0) {
+     return 1;
+  } else if (strcmp(id, "getint") == 0) {
+     return 1;
+  } else if (strcmp(id, "random") == 0) {
+     return 1;
+  } else if (strcmp(id, "getstring") == 0) {
+     return 1;
+  } else if (strcmp(id, "print") == 0) {
+     return 1;
+  } else if (strcmp(id, "println") == 0) {
+     return 1;
+ } else { return 0; }
+}

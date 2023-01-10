@@ -42,4 +42,14 @@ done;
 echo " } else { return NULL; }" >> nativefuns.h
 echo "}" >> nativefuns.h
 
+NATIVE=$(grep  -o 'NATIVE([^)]*)' *.c | cut -d'(' -f 2 | tr -d ' )')
+echo "int native_exists (char *id) {" >> nativefuns.h
+echo " if (0) {" >> nativefuns.h
+for FUN in $NATIVE; do
+   echo "  } else if (strcmp(id, \"$FUN\") == 0) {" >> nativefuns.h
+   echo "     return 1;" >> nativefuns.h
+done;
+echo " } else { return 0; }" >> nativefuns.h
+echo "}" >> nativefuns.h
+
 
