@@ -97,7 +97,7 @@ arr_t *arr_dup (arr_t *a) {
 
 void arr_add (arr_t *a, arr_t *a2) {
   for (int i = 0; i < a2->size; i++) {
-    arr_set(a, a->size+i, a2->vals[i]);
+    arr_set(a, a->size, a2->vals[i]);
   }
 }
 

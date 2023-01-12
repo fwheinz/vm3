@@ -3,16 +3,16 @@
 int main (void) {
     prog_t *p = prog_new();
 
-    int f_print = prog_new_constant(p, v_str_new_cstr("print"));
-
-    prog_add_num(p, 25);
-    prog_add_num(p, 1);
-    prog_add_num(p, f_print);
-    prog_add_op(p, CONSTANT);
-    prog_add_op(p, CALL);
-    prog_add_op(p, DISCARD);
-    prog_add_num(p, 0);
-    prog_add_op(p, JUMP);
+    prog_add_num(p, 10);
+    prog_add_num(p, 20);
+    prog_add_num(p, 2);
+    prog_add_op(p, MKARRAY);
+    prog_add_num(p, 30);
+    prog_add_num(p, 40);
+    prog_add_num(p, 2);
+    prog_add_op(p, MKARRAY);
+    prog_add_op(p, ADD);
+    prog_add_op(p, PRINT);
 
 
     exec_t *e = exec_new(p);
