@@ -151,6 +151,13 @@ val_t *v_str_conv (val_t *val) {
         snprintf(buf, sizeof(buf), "%d", val->u.num);
         return v_str_new_cstr(buf);
       }
+    case T_REAL:
+      {
+        int l = snprintf(NULL, 0, "%f", val->u.real);
+        char buf[l+1];
+        snprintf(buf, sizeof(buf), "%f", val->u.real);
+        return v_str_new_cstr(buf);
+      }
     default:
       return v_str_new_cstr("N/A");
   }
