@@ -30,7 +30,13 @@ val_t *v_real_dup (val_t *v) {
 }
 
 int v_real_cmp (val_t *v1, val_t *v2) {
-  return v1->u.real - v2->u.real;
+  double diff = v1->u.real - v2->u.real;
+  if (diff < 0)
+    return -1;
+  else if (diff > 0)
+    return 1;
+  else
+    return 0;
 }
 
 int v_real_to_bool (val_t *v) {
