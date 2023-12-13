@@ -712,6 +712,7 @@ int prog_write (prog_t *p, char *filename) {
   val_serialize(f, p->constants);
   val_serialize(f, p->functions);
   val_serialize(f, p->ops);
+	fclose(f);
 
   return 1;
 }
