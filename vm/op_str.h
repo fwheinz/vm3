@@ -3,6 +3,7 @@ char *opcodestr[] = {
   "INVALID",
  "MYMUL",
  "ADD",
+ "TYPEOF",
  "SUB",
  "MUL",
  "DIVIDE",

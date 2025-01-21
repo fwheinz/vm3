@@ -173,6 +173,13 @@ OPCODE(add) {
   PUSH(r);
 }
 
+OPCODE(typeof) {
+	MINARGS(1);
+	val_t *a1 = POP;
+	val_t *r = v_num_new_int(a1->type);
+	PUSH(r);
+}
+
 OPCODE(sub) {
   MINARGS(2);
   val_t *a1 = POP;

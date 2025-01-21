@@ -5,6 +5,9 @@
   case ADD:
     op_add(exec);
     break;
+  case TYPEOF:
+    op_typeof(exec);
+    break;
   case SUB:
     op_sub(exec);
     break;
