@@ -22,7 +22,7 @@ val_t *v_num_create (void) {
   return v;
 }
 
-val_t *v_num_dup (val_t *v) {
+val_t *v_num_copy (val_t *v) {
   val_t *v2 = val_new(T_NUM);
   v2->u.num = v->u.num;
 
@@ -74,7 +74,7 @@ void val_register_num (void) {
     .create = v_num_create,
     .free   = NULL,
     .len    = NULL,
-    .dup    = v_num_dup,
+    .copy    = v_num_copy,
     .cmp    = v_num_cmp,
     .to_bool= v_num_to_bool,
     .index  = NULL,

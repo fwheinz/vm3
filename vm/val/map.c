@@ -85,7 +85,7 @@ int map_len (map_t *a) {
   return a->size;
 }
 
-map_t *map_dup (map_t *a) {
+map_t *map_copy (map_t *a) {
   map_t *r = map_new();
   for (int i = 0; i < a->size; i++) {
     map_set(r, a->keys[i], a->vals[i]);
@@ -114,9 +114,9 @@ int v_map_len (val_t *a) {
   return map_len(a->u.map);
 }
 
-val_t *v_map_dup (val_t *a) {
+val_t *v_map_copy (val_t *a) {
   val_t *r = val_new(T_MAP);
-  r->u.map = map_dup(a->u.map);
+  r->u.map = map_copy(a->u.map);
 
   return r;
 }
@@ -179,7 +179,7 @@ void val_register_map (void) {
     .create = v_map_create,
     .free   = v_map_free,
     .len    = v_map_len,
-    .dup    = v_map_dup,
+    .copy    = v_map_copy,
     .cmp    = NULL,
     .index  = v_map_index,
     .index_assign = v_map_index_assign,

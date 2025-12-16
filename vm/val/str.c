@@ -45,7 +45,7 @@ int str_len (str_t *str) {
   return str->len;
 }
 
-str_t *str_dup (str_t *str) {
+str_t *str_copy (str_t *str) {
   str_t *s = str_create();
   str_add_buf(s, str->buf, str->len);
   return s;
@@ -111,9 +111,9 @@ int v_str_len (val_t *v) {
   return str_len(v->u.str);
 }
 
-val_t *v_str_dup (val_t *v) {
+val_t *v_str_copy (val_t *v) {
   val_t *v2 = val_new(T_STR);
-  v2->u.str = str_dup(v->u.str);
+  v2->u.str = str_copy(v->u.str);
   return v2;
 }
 
@@ -193,12 +193,12 @@ void val_register_str (void) {
     .create = v_str_create,
     .free   = v_str_free,
     .len    = v_str_len,
-    .dup    = v_str_dup,
+    .copy    = v_str_copy,
     .cmp    = v_str_cmp,
     .to_bool= v_str_to_bool,
     .index  = v_str_index,
     .index_assign = v_str_index_assign,
-    .to_string = v_str_dup,
+    .to_string = v_str_copy,
     .conv   = v_str_conv,
     .serialize = v_str_serialize,
     .deserialize = v_str_deserialize

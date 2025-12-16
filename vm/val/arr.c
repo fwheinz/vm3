@@ -86,7 +86,7 @@ int arr_len (arr_t *a) {
   return a->size;
 }
 
-arr_t *arr_dup (arr_t *a) {
+arr_t *arr_copy (arr_t *a) {
   arr_t *r = arr_new();
   for (int i = 0; i < a->size; i++) {
     arr_set(r, i, a->vals[i]);
@@ -119,9 +119,9 @@ int v_arr_to_bool (val_t *a) {
   return arr_len(a->u.arr) != 0;
 }
 
-val_t *v_arr_dup (val_t *a) {
+val_t *v_arr_copy (val_t *a) {
   val_t *r = val_new(T_ARR);
-  r->u.arr = arr_dup(a->u.arr);
+  r->u.arr = arr_copy(a->u.arr);
 
   return r;
 }
@@ -186,7 +186,7 @@ void val_register_arr (void) {
     .create = v_arr_create,
     .free   = v_arr_free,
     .len    = v_arr_len,
-    .dup    = v_arr_dup,
+    .copy    = v_arr_copy,
     .cmp    = NULL,
     .to_bool= v_arr_to_bool,
     .index  = v_arr_index,

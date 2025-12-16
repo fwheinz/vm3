@@ -417,7 +417,7 @@ OPCODE(dup) {
 OPCODE(copy) {
   MINARGS(1);
   val_t *v = POP;
-  PUSH(val_dup(v));
+  PUSH(val_copy(v));
 }
 
 

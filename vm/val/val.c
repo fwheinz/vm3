@@ -93,10 +93,10 @@ int val_len (val_t *val) {
   return 0;
 }
 
-val_t *val_dup (val_t *val) {
+val_t *val_copy (val_t *val) {
   int type = val->type;
-  if (val_ops[type].dup)
-    return val_ops[type].dup(val);
+  if (val_ops[type].copy)
+    return val_ops[type].copy(val);
   else
     return val_create(val->type);
 }
@@ -165,7 +165,7 @@ val_t *val_add (val_t *v1, val_t *v2) {
     case T_STR:
       if (v2->type != T_STR)
         return &val_undef;
-      ret = val_dup(v1);
+      ret = val_copy(v1);
       str_add_buf(ret->u.str, v2->u.str->buf, v2->u.str->len);
       return ret;
 
@@ -182,7 +182,7 @@ val_t *val_add (val_t *v1, val_t *v2) {
       return ret;
     
     case T_ARR:
-      ret = val_dup(v1);
+      ret = val_copy(v1);
       if (v2->type == T_ARR) {
         arr_add(ret->u.arr, v2->u.arr);
       } else {

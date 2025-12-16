@@ -49,7 +49,7 @@ struct val_ops {
   val_t *(*create )(void);
   void   (*free   )(val_t *);
   int    (*len    )(val_t *);
-  val_t *(*dup    )(val_t *);
+  val_t *(*copy    )(val_t *);
   int    (*cmp    )(val_t *, val_t *);
   int    (*to_bool)(val_t *);
   val_t *(*index  )(val_t *v, val_t *i);
@@ -78,7 +78,7 @@ int vals_gc (void *);
 val_t *val_create (int type);
 void   val_free (val_t *val);
 int    val_len (val_t *val);
-val_t *val_dup (val_t *val);
+val_t *val_copy (val_t *val);
 int    val_cmp (val_t *v1, val_t *v2);
 int    val_to_bool (val_t *v);
 val_t *val_index (val_t *val, val_t *i);

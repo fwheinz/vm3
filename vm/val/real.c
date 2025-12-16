@@ -22,7 +22,7 @@ val_t *v_real_create (void) {
   return v;
 }
 
-val_t *v_real_dup (val_t *v) {
+val_t *v_real_copy (val_t *v) {
   val_t *v2 = val_new(T_REAL);
   v2->u.real = v->u.real;
 
@@ -78,7 +78,7 @@ void val_register_real (void) {
     .create = v_real_create,
     .free   = NULL,
     .len    = NULL,
-    .dup    = v_real_dup,
+    .copy    = v_real_copy,
     .cmp    = v_real_cmp,
     .to_bool= v_real_to_bool,
     .index  = NULL,
