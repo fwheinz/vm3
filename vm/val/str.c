@@ -52,12 +52,12 @@ str_t *str_copy (str_t *str) {
 }
 
 int str_cmp (str_t *s1, str_t *s2) {
-  int n = s1->len > s2->len ? s1->len : s2->len;
+  int n = (s1->len < s2->len) ? s1->len : s2->len;
   int st = memcmp(s1->buf, s2->buf, n);
   if (st != 0 || s1->len == s2->len)
     return st;
   else
-    return s1->len < s2->len ? -1 : 1;
+    return (s1->len < s2->len) ? -1 : 1;
 }
 
 str_t *str_index (str_t *str, int i) {
