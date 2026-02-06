@@ -74,14 +74,27 @@ str_t *str_index (str_t *str, int i) {
 }
 
 str_t *str_index_assign(str_t *str, int index, str_t *str2) {
-  vmerror(E_WARN, NULL, "String index assignment out of bounds: len: %d, index: %d", str->len, index);
-  while (index <= str->len)
-    str_add_buf(str, " ", 1);
-  str->buf = realloc(str->buf, str->len + str2->len);
-  memmove(str->buf+index+1, str->buf + index + str2->len-1, str->len - index);
-  memcpy(str->buf+index, str2->buf, str2->len);
+  if (index < 0) {
+      vmerror(E_WARN, NULL, "Negative index assignment: %d", index);
+      return str;
+  }
 
-  return str;
+  if (index > str->len) {
+    vmerror(E_WARN, NULL, "Index out of bounds: len %d, index %d", str->len, index);
+    while (index > str->len)
+      str_add_buf(str, " ", 1);
+  }
+
+  size_t new_end = index + str2->len;
+    if (new_end > str->len) {
+        str->buf = realloc(str->buf, new_end + 1);
+
+        str->len = new_end;
+        str->buf[str->len] = '\0';
+    }
+
+    memcpy(str->buf + index, str2->buf, str2->len);
+    return str;
 }
 
 val_t *v_str_create (void) {
